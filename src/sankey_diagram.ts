@@ -139,7 +139,7 @@ class SankeyDiagram implements MAppViews {
     <div class='controlBox'>
         <div class='left_bar_heading'><p>Source: ${columnLabels.sourceNode}</p></div>
           <div class='row'>
-            <div class='col-sm-10'>
+            <div class='col-sm-10 slider'>
               <input id='entityFilter'/>
             </div>
             <div class='col-sm-1 sliderIcon' style='margin-top: 24px;'>
@@ -213,10 +213,10 @@ class SankeyDiagram implements MAppViews {
     <div class='controlBox'>
       <div class='right_bar_heading'><p>Target: ${columnLabels.targetNode}</p></div>
       <div class='row'>
-        <div class='col-sm-10'>
+        <div class='col-sm-10 slider'>
           <input id='mediaFilter'/>
         </div>
-        <div class='col-sm-1' style='margin-top: 24px;'>
+        <div class='col-sm-1 sliderIcon' style='margin-top: 24px;'>
           <a data-toggle='collapse' href='#collapseContentEntity2' aria-expanded='true' class='collapsed'>
           <i class='fa fa-pencil-square-o pull-right specialIcon'></i></a>
         </div>
