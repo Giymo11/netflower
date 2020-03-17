@@ -60,8 +60,13 @@ module.exports = function(registry) {
     'name': 'SimpleLogging',
   });
 
+  registry.push('validView', 'ScrollytellingTutorial', function() { return System.import('./src/scrollytelling_tutorial'); }, {
+    'name': 'ScrollytellingTutorial',
+  });
+
   // registry.push('validView', 'HelpWindow', function() { return System.import('./src/helpWindow'); }, {
   //   'name': 'HelpWindow',
   // });
   // generator-phovea:end
+
 };

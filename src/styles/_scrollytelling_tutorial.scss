@@ -1,0 +1,41 @@
+.scrollytelling_tutorial {
+  z-index: 1;
+    height: 100%;
+    width: 20%;
+    top: 176px;
+    left: 10px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    margin-right: 10px;
+    border-radius: 4px;
+    padding: 7px;
+  position: relative;
+
+  overflow: auto;
+}
+
+
+.scrollytelling_tutorial-hider {
+  z-index: 2;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 25%;
+  height: 206px;
+  background: white;
+}
+
+body {
+
+}
+.app {
+}
+
+.sankey_features {
+  position:fixed;
+  z-index: 3;
+}
+
+.sankey_diagram {
+  position: fixed;
+}

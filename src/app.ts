@@ -80,6 +80,11 @@ export class App implements MAppViews {
       options: {}
     },
     {
+      view: 'ScrollytellingTutorial',
+      parent: 'dataVizView',
+      options: {},
+    },
+    {
       view: 'DataImport',
       parent: 'dataLoadingView',
       options: {},
@@ -126,7 +131,7 @@ export class App implements MAppViews {
       view: 'HelpWindow',
       parent: 'app',
       options: {'parentDOM' : 'div#socialMedia'},
-    }
+    },
   ];
 
   constructor(parent:Element) {
