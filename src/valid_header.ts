@@ -19,6 +19,7 @@ import {BACK_INFO} from './language';
 class ValidHeader implements MAppViews {
 
   private $node;
+  private shrink: boolean = false;
 
   constructor(parent: Element, private options: any) {
     this.$node = d3.select('#validHeader');
@@ -61,13 +62,13 @@ class ValidHeader implements MAppViews {
         <div id='socialMedia'>
         <p><a href='imprint.html'
           target='blank' title='Legal Disclosure'><i class='fa fa-info fa-2x web'></i></a></p>
-        <p><a href='https://twitter.com/valid_at' 
+        <p><a href='https://twitter.com/valid_at'
           target='blank' title='Twitter'><i class='fa fa-twitter-square fa-2x web'></i></a> </p>
-        <p><a href='https://github.com/VALIDproject' 
+        <p><a href='https://github.com/VALIDproject'
           target='blank' title='Github Code'> <i class='fa fa-github fa-2x web'></i></a> </p>
-        <p><a href='http://www.validproject.at/' 
+        <p><a href='http://www.validproject.at/'
           target='blank' title='Project Website'><i class='fa fa-globe fa-2x web'></i></a></p>
-        <p><a href='index.html' 
+        <p><a href='index.html'
           target='blank' title='Home'><i class='fa fa-home fa-2x web'></i></a></p>
     </div>
     <div class='valid_logo'></div>
@@ -123,31 +124,48 @@ class ValidHeader implements MAppViews {
         .attr('class', 'label label-primary')
         .attr('style', 'margin-left: 5px;');
     });
+
+    events.on(AppConstants.EVENT_SHRINK_CHANGE, (evt, data) => {
+      this.shrink = data;
+      this.updateHeader();
+    });
+  }
+
+  private updateHeader(): void {
+    if (this.shrink) {
+      $('.sankey_features').addClass('invisibleClass');
+      $('.sankey_diagram').addClass('shrink');
+      $('.scrollytelling_tutorial-hider').addClass('invisibleClass');
+      $('.netflowerLogo').addClass('shrink');
+      $('#validHeader').addClass('shrink');
+      $('#socialMedia').addClass('shrink');
+      $('.valid_logo').addClass('shrink');
+      $('.timeInfoBox').removeClass('invisibleClass');
+      $('.btn_preupload i').removeClass('fa fa-folder-open-o fa-2x');
+      $('.btn_preupload i').addClass('fa fa-folder-open-o');
+      $('.btn_preupload').attr('style', 'margin-top: 3px;');
+      $('#textBackBtn').attr('style', 'margin-top: 0px;');
+    } else {
+      $('.sankey_features').removeClass('invisibleClass');
+      $('.sankey_diagram').removeClass('shrink');
+      $('.scrollytelling_tutorial-hider').removeClass('invisibleClass');
+      $('.netflowerLogo').removeClass('shrink');
+      $('#validHeader').removeClass('shrink');
+      $('#socialMedia').removeClass('shrink');
+      $('.valid_logo').removeClass('shrink');
+      $('.timeInfoBox').addClass('invisibleClass');
+      $('.btn_preupload i').removeClass('fa fa-folder-open-o');
+      $('.btn_preupload i').addClass('fa fa-folder-open-o fa-2x');
+      $('.btn_preupload').attr('style', 'margin-top: 12px;');
+      $('#textBackBtn').attr('style', 'margin-top: 6px;');
+    }
   }
 
   private shrinkHeader(): void {
+    const that = this;
     $(document).on('scroll', function () {
-      if ($(document).scrollTop() > 100) {
-        $('.netflowerLogo').addClass('shrink');
-        $('#validHeader').addClass('shrink');
-        $('#socialMedia').addClass('shrink');
-        $('.valid_logo').addClass('shrink');
-        $('.timeInfoBox').removeClass('invisibleClass');
-        $('.btn_preupload i').removeClass('fa fa-folder-open-o fa-2x');
-        $('.btn_preupload i').addClass('fa fa-folder-open-o');
-        $('.btn_preupload').attr('style', 'margin-top: 3px;');
-        $('#textBackBtn').attr('style', 'margin-top: 0px;');
-      } else {
-        $('.netflowerLogo').removeClass('shrink');
-        $('#validHeader').removeClass('shrink');
-        $('#socialMedia').removeClass('shrink');
-        $('.valid_logo').removeClass('shrink');
-        $('.timeInfoBox').addClass('invisibleClass');
-        $('.btn_preupload i').removeClass('fa fa-folder-open-o');
-        $('.btn_preupload i').addClass('fa fa-folder-open-o fa-2x');
-        $('.btn_preupload').attr('style', 'margin-top: 12px;');
-        $('#textBackBtn').attr('style', 'margin-top: 6px;');
-      }
+      that.shrink = $(document).scrollTop() > 100;
+      events.fire(AppConstants.EVENT_SHRINK_CHANGE, that.shrink);
     });
   }
 }
