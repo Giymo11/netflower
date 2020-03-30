@@ -20,6 +20,7 @@ class ValidHeader implements MAppViews {
 
   private $node;
   private shrink: boolean = false;
+  private shrinkActive: boolean = false;
 
   constructor(parent: Element, private options: any) {
     this.$node = d3.select('#validHeader');
@@ -132,7 +133,7 @@ class ValidHeader implements MAppViews {
   }
 
   private updateHeader(): void {
-    if (this.shrink) {
+    if (this.shrink && this.shrinkActive) {
       $('.sankey_features').addClass('invisibleClass');
       $('.sankey_diagram').addClass('shrink');
       $('.scrollytelling_tutorial-hider').addClass('invisibleClass');

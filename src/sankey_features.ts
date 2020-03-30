@@ -42,7 +42,7 @@ class SankeyFeatures implements MAppViews {
       <div class='container-fluid'>
       	<div class='row'>
       	  <!--First section on the left with filters-->
-      		<div class='col-md-5'>
+      		<div class='col-md-5 sankey_features-filter-time'>
             <div class='row'>
               <div class='col-sm-2'>
                 <h5>Filter</h5>

@@ -48,11 +48,12 @@ class SankeyDetail implements MAppViews {
       });
 
     // TODO: Remove later as it's just a current workaround as second window is always 200 offset...
+    // actually, removed it now and it works
     this.drag2 = d3.behavior.drag()
       .on('drag', function(d,i) {
         d3.select(this).attr('transform', function(d,i){
           return 'translate(' + (this.getBoundingClientRect().x + (<any>d3).event.dx) + ',' +
-            (this.getBoundingClientRect().y + (<any>d3).event.dy - 200) + ')';
+            (this.getBoundingClientRect().y + (<any>d3).event.dy) + ')';
         });
       });
 
@@ -88,6 +89,13 @@ class SankeyDetail implements MAppViews {
       SimpleLogging.log('flow detail close', '');
       this.closeDetail();
       this.clicked = 0;
+    });
+
+    events.on(AppConstants.EVENT_SHOW_DETAIL_SANKEY, (evt, data, json, coordinates) => {
+      if(this.clicked < 1) {
+        this.drawDetails(data, json, coordinates);
+        ++this.clicked;
+      }
     });
   }
 

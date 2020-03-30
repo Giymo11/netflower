@@ -13,7 +13,8 @@
     ],
     "baseUrl": "../",
     "noImplicitAny": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["waypoints"]
   },
   "include": [
     "src/**/*.ts",

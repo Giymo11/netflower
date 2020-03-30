@@ -40,4 +40,6 @@ export class AppConstants {
 
   static SANKEY_TOP_MARGIN = 10;
   static SANKEY_NODE_PADDING = 20;
+
+  static EVENT_SHOW_DETAIL_SANKEY = 'eventShowDetailSankey';
 }

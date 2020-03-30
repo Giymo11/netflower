@@ -1,21 +1,21 @@
 .scrollytelling_tutorial {
   z-index: 1;
-    height: 100%;
-    width: 20%;
-    top: 176px;
-    left: 10px;
-    margin-top: 30px;
-    margin-bottom: 20px;
-    margin-right: 10px;
-    border-radius: 4px;
-    padding: 7px;
+  height: 100%;
+  width: 20%;
+  top: 176px;
+  left: 32px;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  margin-right: 10px;
+  border-radius: 4px;
+  padding: 7px;
   position: relative;
 
   overflow: auto;
 }
 
 .scrollytelling_tutorial h3 {
-  margin-top: 25%;
+
 }
 
 .scrollytelling_tutorial-hider {
@@ -31,17 +31,53 @@
 .scrollytelling_tutorial img {
   max-width: 100%;
 }
+
 body {
 
 }
+
 .app {
 }
 
+#scrollytelling_indicator {
+  height: 4em;
+  width:20%;
+  position: fixed;
+  top: 30vh;
+  left: -1em;
+
+  svg {
+
+  }
+}
+
+.scrollytelling_waypoint {
+  padding-bottom: 15%;
+  padding-top: 15%;
+}
+
 .sankey_features {
-  position:fixed;
+  position: fixed;
   z-index: 3;
 }
 
 .sankey_diagram {
   position: fixed;
+}
+
+.sankey_details {
+  position: fixed;
+}
+
+.sankey_details2 {
+  position: fixed;
+}
+
+.scrollytelling-hidden {
+  visibility: hidden !important;
+}
+
+
+.scrollytelling-hidden * {
+  visibility: hidden !important;
 }

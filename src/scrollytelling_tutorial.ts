@@ -11,9 +11,24 @@ import * as d3_save_svg from 'd3-save-svg';
 import {MAppViews} from './app';
 import {AppConstants} from './app_constants';
 
+import 'waypoints/lib/noframework.waypoints.js';
+
+import {debounce} from 'ts-debounce';
+
+export class ScrollytellingConstants {
+  static ABOUT = 'scrollytelling_waypoint-about';
+  static VIS_MAIN = 'scrollytelling_waypoint-vis-main';
+  static VIS_CHART = 'scrollytelling_waypoint-vis-chart';
+  static VIS_DETAIL = 'scrollytelling_waypoint-vis-detail';
+  static FILTER_TIME = 'scrollytelling_waypoint-filter_time';
+}
+
 class ScrollytellingTutorial implements MAppViews {
 
   private $node;
+  private waypoints: Array<Element>;
+  private indicator;
+  private currentOverlap;
 
   constructor(parent: Element, private options: any) {
     this.$node = d3.select(parent)
@@ -21,19 +36,97 @@ class ScrollytellingTutorial implements MAppViews {
       .classed('scrollytelling_tutorial', true);
   }
 
+  private overlap(elem1: Element, elem2: Element): boolean {
+    const rect1 = elem1.getBoundingClientRect();
+    const rect2 = elem2.getBoundingClientRect();
+
+    return !(rect1.right < rect2.left ||
+      rect1.left > rect2.right ||
+      rect1.bottom < rect2.top ||
+      rect1.top > rect2.bottom);
+  }
+
   init(): Promise<MAppViews> {
     this.build();
     this.attachListener();
+
+    events.on(AppConstants.EVENT_UI_COMPLETE, (evt, data) => {
+      this.hideView();
+
+      this.waypoints = Array.from(document.querySelectorAll('.scrollytelling_waypoint'));
+      this.indicator = document.querySelector('#scrollytelling_indicator');
+    });
 
     // Return the promise directly as long there is no dynamical data to update
     return Promise.resolve(this);
   }
 
+  private viewsToHide = ['.left_bars', '.right_bars', '.tooltip2', '', '.sankey_features-filter-time', '.middle_bars'];
+
+  private hideView() {
+    for (const selector of this.viewsToHide) {
+      $(selector).addClass('scrollytelling-hidden');
+    }
+  }
+
+  private updateViewForCurrentProgress() {
+
+    for (const waypoint of this.waypoints) {
+      if (this.overlap(this.indicator, waypoint)) {
+        console.log(waypoint.id);
+        this.hideView();
+        for (let i = 0; i < this.viewsToHide.length; ++i) {
+          if (i >= 0 && waypoint.id === ScrollytellingConstants.ABOUT) {
+            break;
+          }
+          if (i >= 0 && waypoint.id === ScrollytellingConstants.VIS_MAIN) {
+            break;
+          }
+          if (i >= 2 && waypoint.id === ScrollytellingConstants.VIS_CHART) {
+            break;
+          }
+          if (i >= 3 && waypoint.id === ScrollytellingConstants.VIS_DETAIL) {
+            if(this.currentOverlap === ScrollytellingConstants.VIS_CHART) {
+              document.querySelector('#sankeyDiagram path.link')
+                .dispatchEvent(new MouseEvent('show', {clientX: 200, clientY: 200}));
+            }
+            break;
+          }
+          if (i >= 5 && waypoint.id === ScrollytellingConstants.FILTER_TIME) {
+            if(this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
+              events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
+            }
+            break;
+          }
+          $(this.viewsToHide[i]).removeClass('scrollytelling-hidden');
+        }
+        this.currentOverlap = waypoint.id;
+        break;
+      }
+    }
+  }
+
+  /**
+   * Attach the event listeners
+   */
+  private attachListener() {
+    const that = this;
+    $(document).on('scroll', function () {
+      debounce(that.updateViewForCurrentProgress.bind(that), 80)();
+    });
+  }
+
+
   private build() {
     this.$node.html(`
-    <div class="scrollytelling_tutorial-hider"></div>
-      <div>
-        <h3 id="about">
+      <div class="scrollytelling_tutorial-hider"></div>
+      <div id="scrollytelling_indicator">
+        <svg class="bi bi-chevron-compact-right" width="4em" height="4em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M6.776 1.553a.5.5 0 01.671.223l3 6a.5.5 0 010 .448l-3 6a.5.5 0 11-.894-.448L9.44 8 6.553 2.224a.5.5 0 01.223-.671z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.ABOUT}">
+        <h3>
           About
         </h3>
 
@@ -51,61 +144,8 @@ class ScrollytellingTutorial implements MAppViews {
         </p>
       </div>
 
-      <div>
-        <h3 id="loading">
-          Loading Data
-        </h3>
-
-        <p>
-          This tool requires a specific format for the tables in order to
-          visualize them appropriately. Also only <b>.CSV</b> files are
-          accepted. If the required format isn't met, it will result in errors
-          or no displayed data. The format of the table headings defines all
-          further views but needs to be in a specific order.
-        </p>
-      </div>
-
-      <div>
-        <ol start="1">
-          <li>
-            Prepare your data file as a .csv file with the structure shown in
-            the table.
-          </li>
-        </ol>
-      </div>
-      <img
-        src="https://cdn.glitch.com/c7f79333-d81b-4410-afb5-7bfda6c6ddea%2Fnetflower_01_table.jpg?v=1578395805078"
-      />
-
-      <div>
-        <ol start="2">
-          <li>Load your data here and click 'Load & Show'.</li>
-        </ol>
-      </div>
-      <img
-        src="https://cdn.glitch.com/c7f79333-d81b-4410-afb5-7bfda6c6ddea%2Fnetflower_01_load.jpg?v=1578397613789"
-      />
-
-      <div>
-        <ol start="3">
-          <li>Here you can download some sample files.</li>
-        </ol>
-      </div>
-      <img
-        src="https://cdn.glitch.com/c7f79333-d81b-4410-afb5-7bfda6c6ddea%2Fnetflower_01_sample.jpg?v=1578397817941"
-      />
-
-      <div>
-        <p>
-          The data you load will only be stored locally on your computer. When
-          you close the browser, the data is retained. When the computer is
-          restarted or you upload new data, the data and exploration steps are
-          lost.
-        </p>
-      </div>
-
-      <div>
-        <h3 id="reading">
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_MAIN}">
+        <h3>
           Read the Visualization
         </h3>
         <ol start="1">
@@ -117,10 +157,8 @@ class ScrollytellingTutorial implements MAppViews {
           </li>
         </ol>
       </div>
-      <img class="chart" src="https://cdn.glitch.com/c7f79333-d81b-4410-afb5-7bfda6c6ddea%2F02_sankey.png?v=1579238348463">
 
-
-      <div>
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_CHART}">
         <ol start="2">
           <li>
             The small bar charts left and right show the amount of asylum
@@ -129,8 +167,7 @@ class ScrollytellingTutorial implements MAppViews {
           </li>
         </ol>
       </div>
-      <img class="chart" src="https://cdn.glitch.com/c7f79333-d81b-4410-afb5-7bfda6c6ddea%2F02_small_bars.png?v=1579238731176">
-
+        <!--
       <div>
         <p>
           On the bottom of the site, you find two buttons <b>'Show Less'</b> and
@@ -143,7 +180,8 @@ class ScrollytellingTutorial implements MAppViews {
           countries.
         </p>
       </div>
-      <div>
+      -->
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_DETAIL}">
         <p>
           <b>Detailed view</b>: By clicking on one connection line in the sankey
           diagram, you get a detail view showing the amount of asylum
@@ -162,7 +200,7 @@ class ScrollytellingTutorial implements MAppViews {
         </p>
       </div>
 
-      <div>
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.FILTER_TIME}">
         <h3 id="filtering">
           Filtering, Sorting, Ordering
         </h3>
@@ -279,16 +317,7 @@ class ScrollytellingTutorial implements MAppViews {
       </div>`
     );
   }
-
-  /**
-   * Attach the event listeners
-   */
-  // tslint:disable-next-line:no-empty
-  private attachListener() {
-
-  }
 }
-
 
 /**
  * Factory method to create a new ScrollytellingTutorial instance
