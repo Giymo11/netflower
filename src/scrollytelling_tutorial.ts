@@ -20,7 +20,15 @@ export class ScrollytellingConstants {
   static VIS_MAIN = 'scrollytelling_waypoint-vis-main';
   static VIS_CHART = 'scrollytelling_waypoint-vis-chart';
   static VIS_DETAIL = 'scrollytelling_waypoint-vis-detail';
-  static FILTER_TIME = 'scrollytelling_waypoint-filter_time';
+  static FILTER_TIME = 'scrollytelling_waypoint-filter-time';
+  static FILTER_SORT = 'scrollytelling_waypoint-filter-sort';
+  static FILTER_EXPORT = 'scrollytelling_waypoint-filter-export';
+  static FILTER_LIMIT = 'scrollytelling_waypoint-filter-limit';
+  static FILTER_SEARCH = 'scrollytelling_waypoint-filter-search';
+  static TAG_DATA = 'scrollytelling_waypoint-tag-data';
+  static TAG_ADD = 'scrollytelling_waypoint-tag-add';
+  static TAG_FILTER = 'scrollytelling_waypoint-tag-filter';
+  static TAG_FLOW = 'scrollytelling_waypoint-tag-flow';
 }
 
 class ScrollytellingTutorial implements MAppViews {
@@ -55,13 +63,45 @@ class ScrollytellingTutorial implements MAppViews {
 
       this.waypoints = Array.from(document.querySelectorAll('.scrollytelling_waypoint'));
       this.indicator = document.querySelector('#scrollytelling_indicator');
+
+      this.updateViewForCurrentProgress();
     });
 
     // Return the promise directly as long there is no dynamical data to update
     return Promise.resolve(this);
   }
 
-  private viewsToHide = ['.left_bars', '.right_bars', '.tooltip2', '', '.sankey_features-filter-time', '.middle_bars'];
+  private viewsToHide = [
+    '',
+    '.left_bars, .right_bars',
+    '.tooltip2',
+    '',
+    '.sankey_features-filter-time',
+    '.sankey_features-filter-sort',
+    '.sankey_features-filter-export',
+    '.sankey_diagram-slider, .middle_bars',
+    '.sankey_diagram-search',
+    '',
+    '.manageEntityTag, .manageMediaTag',
+    '.sankey_diagram-tagfilter',
+    '.sankey_features-tag-flow',
+  ];
+
+  private breakpoints = [
+    ScrollytellingConstants.ABOUT,
+    ScrollytellingConstants.VIS_MAIN,
+    ScrollytellingConstants.VIS_CHART,
+    ScrollytellingConstants.VIS_DETAIL,
+    ScrollytellingConstants.FILTER_TIME,
+    ScrollytellingConstants.FILTER_SORT,
+    ScrollytellingConstants.FILTER_EXPORT,
+    ScrollytellingConstants.FILTER_LIMIT,
+    ScrollytellingConstants.FILTER_SEARCH,
+    ScrollytellingConstants.TAG_DATA,
+    ScrollytellingConstants.TAG_ADD,
+    ScrollytellingConstants.TAG_FILTER,
+    ScrollytellingConstants.TAG_FLOW,
+  ];
 
   private hideView() {
     for (const selector of this.viewsToHide) {
@@ -70,35 +110,25 @@ class ScrollytellingTutorial implements MAppViews {
   }
 
   private updateViewForCurrentProgress() {
-
     for (const waypoint of this.waypoints) {
       if (this.overlap(this.indicator, waypoint)) {
         console.log(waypoint.id);
         this.hideView();
         for (let i = 0; i < this.viewsToHide.length; ++i) {
-          if (i >= 0 && waypoint.id === ScrollytellingConstants.ABOUT) {
-            break;
-          }
-          if (i >= 0 && waypoint.id === ScrollytellingConstants.VIS_MAIN) {
-            break;
-          }
-          if (i >= 2 && waypoint.id === ScrollytellingConstants.VIS_CHART) {
-            break;
-          }
-          if (i >= 3 && waypoint.id === ScrollytellingConstants.VIS_DETAIL) {
-            if(this.currentOverlap === ScrollytellingConstants.VIS_CHART) {
+          $(this.viewsToHide[i]).removeClass('scrollytelling-hidden');
+          if(this.breakpoints[i] === waypoint.id) {
+            if (waypoint.id === ScrollytellingConstants.VIS_CHART && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
+              events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
+            }
+            if(waypoint.id === ScrollytellingConstants.VIS_DETAIL && this.currentOverlap === ScrollytellingConstants.VIS_CHART) {
               document.querySelector('#sankeyDiagram path.link')
                 .dispatchEvent(new MouseEvent('show', {clientX: 200, clientY: 200}));
             }
-            break;
-          }
-          if (i >= 5 && waypoint.id === ScrollytellingConstants.FILTER_TIME) {
-            if(this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
+            if(waypoint.id === ScrollytellingConstants.FILTER_TIME && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
               events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
             }
             break;
           }
-          $(this.viewsToHide[i]).removeClass('scrollytelling-hidden');
         }
         this.currentOverlap = waypoint.id;
         break;
@@ -167,7 +197,7 @@ class ScrollytellingTutorial implements MAppViews {
           </li>
         </ol>
       </div>
-        <!--
+
       <div>
         <p>
           On the bottom of the site, you find two buttons <b>'Show Less'</b> and
@@ -180,7 +210,7 @@ class ScrollytellingTutorial implements MAppViews {
           countries.
         </p>
       </div>
-      -->
+
       <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_DETAIL}">
         <p>
           <b>Detailed view</b>: By clicking on one connection line in the sankey
@@ -189,7 +219,6 @@ class ScrollytellingTutorial implements MAppViews {
           countries).
         </p>
       </div>
-      <img class="chart" src="https://cdn.glitch.com/c7f79333-d81b-4410-afb5-7bfda6c6ddea%2F02_detail.png?v=1579249450573">
 
       <div>
         <p>
@@ -214,7 +243,8 @@ class ScrollytellingTutorial implements MAppViews {
           </li>
         </ol>
       </div>
-      <div>
+
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.FILTER_SORT}">
         <ol start="2">
           <li>
             You can sort the data by source, target and flow and order it,
@@ -222,7 +252,8 @@ class ScrollytellingTutorial implements MAppViews {
           </li>
         </ol>
       </div>
-      <div>
+
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.FILTER_EXPORT}">
         <ol start="3">
           <li>
             Exporting the data from the current view. You get a .csv file with
@@ -231,7 +262,8 @@ class ScrollytellingTutorial implements MAppViews {
           </li>
         </ol>
       </div>
-      <div>
+
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.FILTER_LIMIT}">
         <ol start="4">
           <li>
             You can limit the number of asylum applications by using the slider
@@ -239,7 +271,8 @@ class ScrollytellingTutorial implements MAppViews {
           </li>
         </ol>
       </div>
-      <div>
+
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.FILTER_SEARCH}">
         <ol start="5">
           <li>
             Search for a particular country in the origin and also in the
@@ -248,7 +281,7 @@ class ScrollytellingTutorial implements MAppViews {
         </ol>
       </div>
 
-      <div>
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.TAG_DATA}">
         <h3 id="tags">
           Use Tags
         </h3>
@@ -265,7 +298,8 @@ class ScrollytellingTutorial implements MAppViews {
           </li>
         </ol>
       </div>
-      <div>
+
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.TAG_ADD}">
         <ol start="2">
           <li>
             You can add tags by clicking the tags-sign next to the nodes in the
@@ -273,7 +307,8 @@ class ScrollytellingTutorial implements MAppViews {
           </li>
         </ol>
       </div>
-      <div>
+
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.TAG_FILTER}">
         <ol start="3">
           <li>
             You can filter by tags by clicking the small button below the search
@@ -281,7 +316,8 @@ class ScrollytellingTutorial implements MAppViews {
           </li>
         </ol>
       </div>
-      <div>
+
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.TAG_FLOW}">
         <ol start="4">
           <li>
             To see the flows between given tags you can switch the view in the
@@ -289,6 +325,7 @@ class ScrollytellingTutorial implements MAppViews {
           </li>
         </ol>
       </div>
+
       <div>
         <ol start="5">
           <li>
@@ -314,7 +351,11 @@ class ScrollytellingTutorial implements MAppViews {
           go back to it if you closed the browser normally it will still be
           there!
         </p>
-      </div>`
+      </div>
+      <div class="scrollytelling_spacer"></div>
+        <div>
+            <button id="btnExitTutorial" class="btn btn-default btn_design scrollytelling_exit-button">Exit Tutorial</button>
+        </div>`
     );
   }
 }

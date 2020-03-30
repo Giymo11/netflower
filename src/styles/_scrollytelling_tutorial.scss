@@ -52,8 +52,10 @@ body {
 }
 
 .scrollytelling_waypoint {
-  padding-bottom: 15%;
-  padding-top: 15%;
+  margin-top: 10%;
+  margin-bottom: 10%;
+  padding-bottom: 5%;
+  padding-top: 5%;
 }
 
 .sankey_features {
@@ -80,4 +82,14 @@ body {
 
 .scrollytelling-hidden * {
   visibility: hidden !important;
+}
+
+.scrollytelling_spacer {
+  height: 25vh;
+}
+
+#btnExitTutorial {
+  font-size: 1.5em;
+  padding: 0.4em 1.6em;
+  margin: 1em 4em 25vh;
 }

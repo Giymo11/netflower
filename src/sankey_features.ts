@@ -51,7 +51,7 @@ class SankeyFeatures implements MAppViews {
                 <button id='clearAllBtn' class='label'
                   style='background: #45B07C; font-weight: normal;'><i class='fa fa-times'></i> Clear All</button>
               </div>
-              <div class='col-sm-4'>
+              <div class='col-sm-4 sankey_features-tag-flow'>
                 <h5>View Flow between:</h5>
               </div>
             </div>
@@ -64,7 +64,7 @@ class SankeyFeatures implements MAppViews {
                     <button id='btnAttributeDialog' class='btn btn-default btn_design'>Connection Filter</button>
                   </div>
                 </div>
-                <div class='col-md-4'>
+                <div class='col-md-4 sankey_features-tag-flow'>
                   <select class='form-control input-sm' id='tagFlowFilter'>
                      <option value='-1' selected>nodes</option>
                      <option value='1'>tags</option>
@@ -81,7 +81,7 @@ class SankeyFeatures implements MAppViews {
       		</div>
 
       		<!--Second section with the sort options in hte middle-->
-      		<div class='col-md-3'>
+      		<div class='col-md-3 sankey_features-filter-sort'>
       		  <div class='row'>
       		    <div class='col-sm-5'>
       		      <h5>Sort & Order</h5>
@@ -102,7 +102,7 @@ class SankeyFeatures implements MAppViews {
           </div>
 
           <!--Export Settings-->
-          <div class='col-md-2'>
+          <div class='col-md-2 sankey_features-filter-export'>
             <h5>Miscellaneous</h5>
             <button type='button' class='btn btn-default btn_design' id='exportData'>
               Export Data
@@ -114,7 +114,7 @@ class SankeyFeatures implements MAppViews {
           </div>
 
           <!--Global Filters-->
-          <div class='col-md-2'>
+          <div class='col-md-2 sankey_features-filter-export'>
             <h5>Download SVG</h5>
              <button id='getSVGBtn' type='button' class='btn btn-default btn_design'>Get SVG</button>
              <p><small>Note: Only visible flows will be exported.</small></p>

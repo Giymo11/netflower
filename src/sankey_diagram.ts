@@ -138,7 +138,7 @@ class SankeyDiagram implements MAppViews {
     left.html(`
     <div class='controlBox'>
         <div class='left_bar_heading'><p>Source: ${columnLabels.sourceNode}</p></div>
-          <div class='row'>
+          <div class='row sankey_diagram-slider'>
             <div class='col-sm-10 slider'>
               <input id='entityFilter'/>
             </div>
@@ -147,7 +147,7 @@ class SankeyDiagram implements MAppViews {
               <i class='fa fa-pencil-square-o pull-right specialIcon'></i></a>
             </div>
           </div>
-          <div id='collapseContentEntity' class='collapse'>
+          <div id='collapseContentEntity sankey_diagram-slider' class='collapse'>
               <div class='input-group input-group-xs'>
                 <span class='input-group-addon'>Min:</span>
                 <input type='number' value='${this.entityFrom}' class='sliderInput' id='entityFrom' />
@@ -156,7 +156,7 @@ class SankeyDiagram implements MAppViews {
               </div>
           </div>
 
-        <div class='input-group input-group-xs'>
+        <div class='input-group input-group-xs sankey_diagram-search'>
           <input type='text' id='entitySearchFilter' class='form-control' placeholder='Search for ${columnLabels.sourceNode}...'/>
           <span class='input-group-btn'>
             <button type='button' id='entitySearchButton' class='btn btn-primary'><i class='fa fa-search'></i></button>
@@ -165,7 +165,7 @@ class SankeyDiagram implements MAppViews {
             <button type='button' id='clearEntity' class='btn btn-secondary'><i class='fa fa-times'></i></button>
           </span>
         </div>
-        <div class='input-group input-group-xs' id='entityTagFilterGroup' style='width: 100%; margin: 10px auto;'>
+        <div class='input-group input-group-xs sankey_diagram-tagfilter' id='entityTagFilterGroup' style='width: 100%; margin: 10px auto;'>
           <button type='button' class='tagFilterBtn form-control' id='entityTagFilterButton'>Filter by ${columnLabels.sourceNode} Tags</button>
           <div class='tagFilterBox'></div>
         </div>
@@ -212,7 +212,7 @@ class SankeyDiagram implements MAppViews {
     right.html(`
     <div class='controlBox'>
       <div class='right_bar_heading'><p>Target: ${columnLabels.targetNode}</p></div>
-      <div class='row'>
+      <div class='row sankey_diagram-slider'>
         <div class='col-sm-10 slider'>
           <input id='mediaFilter'/>
         </div>
@@ -230,7 +230,7 @@ class SankeyDiagram implements MAppViews {
           </div>
       </div>
 
-      <div class='input-group input-group-xs'>
+      <div class='input-group input-group-xs sankey_diagram-search'>
         <input type='text' id='mediaSearchFilter' class='form-control' placeholder='Search for ${columnLabels.targetNode}...'/>
         <span class='input-group-btn'>
           <button type='button' id='mediaSearchButton' class='btn btn-primary'><i class='fa fa-search'></i></button>
@@ -239,7 +239,7 @@ class SankeyDiagram implements MAppViews {
           <button type='button' id='clearMedia' class='btn btn-secondary'><i class='fa fa-times'></i></button>
         </span>
       </div>
-      <div class='input-group input-group-xs' id='mediaTagFilterGroup' style='width: 100%; margin: 10px auto;'>
+      <div class='input-group input-group-xs sankey_diagram-tagfilter' id='mediaTagFilterGroup' style='width: 100%; margin: 10px auto;'>
         <button type='button' class='tagFilterBtn form-control' id='mediaTagFilterButton'>Filter by ${columnLabels.targetNode} Tags</button>
         <div class='tagFilterBox'></div>
       </div>
