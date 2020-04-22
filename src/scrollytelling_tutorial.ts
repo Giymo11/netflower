@@ -37,40 +37,6 @@ class ScrollytellingTutorial implements MAppViews {
   private waypoints: Array<Element>;
   private indicator;
   private currentOverlap;
-
-  constructor(parent: Element, private options: any) {
-    this.$node = d3.select(parent)
-      .append('div')
-      .classed('scrollytelling_tutorial', true);
-  }
-
-  private overlap(elem1: Element, elem2: Element): boolean {
-    const rect1 = elem1.getBoundingClientRect();
-    const rect2 = elem2.getBoundingClientRect();
-
-    return !(rect1.right < rect2.left ||
-      rect1.left > rect2.right ||
-      rect1.bottom < rect2.top ||
-      rect1.top > rect2.bottom);
-  }
-
-  init(): Promise<MAppViews> {
-    this.build();
-    this.attachListener();
-
-    events.on(AppConstants.EVENT_UI_COMPLETE, (evt, data) => {
-      this.hideView();
-
-      this.waypoints = Array.from(document.querySelectorAll('.scrollytelling_waypoint'));
-      this.indicator = document.querySelector('#scrollytelling_indicator');
-
-      this.updateViewForCurrentProgress();
-    });
-
-    // Return the promise directly as long there is no dynamical data to update
-    return Promise.resolve(this);
-  }
-
   private viewsToHide = [
     '',
     '.left_bars, .right_bars',
@@ -86,7 +52,6 @@ class ScrollytellingTutorial implements MAppViews {
     '.sankey_diagram-tagfilter',
     '.sankey_features-tag-flow',
   ];
-
   private breakpoints = [
     ScrollytellingConstants.ABOUT,
     ScrollytellingConstants.VIS_MAIN,
@@ -103,6 +68,73 @@ class ScrollytellingTutorial implements MAppViews {
     ScrollytellingConstants.TAG_FLOW,
   ];
 
+  private exitedTutorial: Boolean = false;
+
+
+  constructor(parent: Element, private options: any) {
+    this.$node = d3.select(parent)
+      .append('div')
+      .classed('scrollytelling_tutorial', true);
+  }
+
+  init(): Promise<MAppViews> {
+    const that = this;
+    localforage.getItem('scrollytelling_exited-tutorial').then((exitedTutorial) => {
+      this.build();
+      this.attachListener();
+      this.exitedTutorial = exitedTutorial as Boolean;
+      this.updateTutorialEnabled();
+    });
+
+    events.on(AppConstants.EVENT_UI_COMPLETE, (evt, data) => {
+      this.hideView();
+
+      this.waypoints = Array.from(document.querySelectorAll('.scrollytelling_waypoint'));
+      this.indicator = document.querySelector('#scrollytelling_indicator');
+
+      this.updateViewForCurrentProgress();
+    });
+
+    events.on(AppConstants.EVENT_EXIT_TURORIAL, (evt, data) => {
+      this.exitedTutorial = !this.exitedTutorial;
+      this.updateTutorialEnabled();
+      window.scroll({
+        top: 0,
+        left: 0
+      });
+      localforage.setItem('scrollytelling_exited-tutorial', this.exitedTutorial);
+    });
+
+    // Return the promise directly as long there is no dynamical data to update
+    return Promise.resolve(this);
+  }
+
+  private updateTutorialEnabled() {
+    if (this.exitedTutorial) {
+      $('.scrollytelling-tutorial').removeClass('scrollytelling-tutorial');
+      $('.scrollytelling_container').addClass('scrollytelling-disabled');
+      $('.scrollytelling_tutorial-hider').addClass('scrollytelling-disabled');
+      // $('.sankey_features').addClass('scrollytelling-tutorial');
+    } else {
+      $('.sankey_features').addClass('scrollytelling-tutorial');
+      $('.sankey_diagram').addClass('scrollytelling-tutorial');
+      $('.sankey_details').addClass('scrollytelling-tutorial');
+      $('.sankey_details2').addClass('scrollytelling-tutorial');
+      $('.scrollytelling-disabled').removeClass('scrollytelling-disabled');
+    }
+    this.updateViewForCurrentProgress();
+  }
+
+  private overlap(elem1: Element, elem2: Element): boolean {
+    const rect1 = elem1.getBoundingClientRect();
+    const rect2 = elem2.getBoundingClientRect();
+
+    return !(rect1.right < rect2.left ||
+      rect1.left > rect2.right ||
+      rect1.bottom < rect2.top ||
+      rect1.top > rect2.bottom);
+  }
+
   private hideView() {
     for (const selector of this.viewsToHide) {
       $(selector).addClass('scrollytelling-hidden');
@@ -110,28 +142,34 @@ class ScrollytellingTutorial implements MAppViews {
   }
 
   private updateViewForCurrentProgress() {
-    for (const waypoint of this.waypoints) {
-      if (this.overlap(this.indicator, waypoint)) {
-        console.log(waypoint.id);
-        this.hideView();
-        for (let i = 0; i < this.viewsToHide.length; ++i) {
-          $(this.viewsToHide[i]).removeClass('scrollytelling-hidden');
-          if(this.breakpoints[i] === waypoint.id) {
-            if (waypoint.id === ScrollytellingConstants.VIS_CHART && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
-              events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
+    if (this.exitedTutorial) {
+      for (const view of this.viewsToHide) {
+        $(view).removeClass('scrollytelling-hidden');
+      }
+    } else {
+      for (const waypoint of this.waypoints) {
+        if (this.overlap(this.indicator, waypoint)) {
+          console.log(waypoint.id);
+          this.hideView();
+          for (let i = 0; i < this.viewsToHide.length; ++i) {
+            $(this.viewsToHide[i]).removeClass('scrollytelling-hidden');
+            if (this.breakpoints[i] === waypoint.id) {
+              if (waypoint.id === ScrollytellingConstants.VIS_CHART && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
+                events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
+              }
+              if (waypoint.id === ScrollytellingConstants.VIS_DETAIL && this.currentOverlap === ScrollytellingConstants.VIS_CHART) {
+                document.querySelector('#sankeyDiagram path.link')
+                  .dispatchEvent(new MouseEvent('show', {clientX: 200, clientY: 200}));
+              }
+              if (waypoint.id === ScrollytellingConstants.FILTER_TIME && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
+                events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
+              }
+              break;
             }
-            if(waypoint.id === ScrollytellingConstants.VIS_DETAIL && this.currentOverlap === ScrollytellingConstants.VIS_CHART) {
-              document.querySelector('#sankeyDiagram path.link')
-                .dispatchEvent(new MouseEvent('show', {clientX: 200, clientY: 200}));
-            }
-            if(waypoint.id === ScrollytellingConstants.FILTER_TIME && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
-              events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
-            }
-            break;
           }
+          this.currentOverlap = waypoint.id;
+          break;
         }
-        this.currentOverlap = waypoint.id;
-        break;
       }
     }
   }
@@ -144,11 +182,15 @@ class ScrollytellingTutorial implements MAppViews {
     $(document).on('scroll', function () {
       debounce(that.updateViewForCurrentProgress.bind(that), 80)();
     });
+    this.$node.select('#btnExitTutorial').on('click', (d) => {
+      events.fire(AppConstants.EVENT_EXIT_TURORIAL, d, null);
+    });
   }
 
 
   private build() {
     this.$node.html(`
+      <div class="scrollytelling_container">
       <div class="scrollytelling_tutorial-hider"></div>
       <div id="scrollytelling_indicator">
         <svg class="bi bi-chevron-compact-right" width="4em" height="4em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -354,8 +396,9 @@ class ScrollytellingTutorial implements MAppViews {
       </div>
       <div class="scrollytelling_spacer"></div>
         <div>
-            <button id="btnExitTutorial" class="btn btn-default btn_design scrollytelling_exit-button">Exit Tutorial</button>
-        </div>`
+            <button id="btnExitTutorial" class="btn btn-default btn_design scrollytelling_exit-button">Toggle Tutorial</button>
+        </div>
+</div>`
     );
   }
 }

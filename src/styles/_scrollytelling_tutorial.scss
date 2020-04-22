@@ -41,7 +41,7 @@ body {
 
 #scrollytelling_indicator {
   height: 4em;
-  width:20%;
+  width: 20%;
   position: fixed;
   top: 30vh;
   left: -1em;
@@ -51,6 +51,12 @@ body {
   }
 }
 
+#btnExitTutorial {
+  font-size: 1.5em;
+  padding: 0.4em 1.6em;
+  margin: 1em 4em 25vh;
+}
+
 .scrollytelling_waypoint {
   margin-top: 10%;
   margin-bottom: 10%;
@@ -58,22 +64,6 @@ body {
   padding-top: 5%;
 }
 
-.sankey_features {
-  position: fixed;
-  z-index: 3;
-}
-
-.sankey_diagram {
-  position: fixed;
-}
-
-.sankey_details {
-  position: fixed;
-}
-
-.sankey_details2 {
-  position: fixed;
-}
 
 .scrollytelling-hidden {
   visibility: hidden !important;
@@ -88,8 +78,34 @@ body {
   height: 25vh;
 }
 
-#btnExitTutorial {
-  font-size: 1.5em;
-  padding: 0.4em 1.6em;
-  margin: 1em 4em 25vh;
+
+.sankey_features.scrollytelling-tutorial {
+  position: fixed;
+  z-index: 3;
 }
+
+.sankey_diagram.scrollytelling-tutorial {
+  position: fixed;
+}
+
+.sankey_details.scrollytelling-tutorial {
+  position: fixed;
+}
+
+.sankey_details2.scrollytelling-tutorial {
+  position: fixed;
+}
+
+.scrollytelling_tutorial-hider.scrollytelling-disabled {
+  display: none;
+}
+
+
+.scrollytelling_container.scrollytelling-disabled {
+  height: 800px;
+  width: 340px;
+}
+
+
+
+

@@ -42,4 +42,6 @@ export class AppConstants {
   static SANKEY_NODE_PADDING = 20;
 
   static EVENT_SHOW_DETAIL_SANKEY = 'eventShowDetailSankey';
+
+  static EVENT_EXIT_TURORIAL = 'eventExitScrollytellingTutorial';
 }
