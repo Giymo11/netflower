@@ -11,6 +11,7 @@ import {dotFormat, d3TextWrap} from './utilities';
 import TimeFormat from './timeFormat';
 import SimpleLogging from './simpleLogging';
 import Export from './export';
+import {parse} from 'papaparse';
 
 class SankeyDetail implements MAppViews {
 
@@ -39,21 +40,34 @@ class SankeyDetail implements MAppViews {
   init() {
     // this.build();
     this.attachListener();
+
+    const parseTranslate = (elem: Element): [Number, Number] => {
+      const xforms = elem.getAttribute('transform');
+      const parts = /translate\(\s*([^\s,)]+)[ ,]([^\s,)]+)/.exec(xforms);
+      const firstX = parseInt(parts[1], 10),
+        firstY = parseInt(parts[2], 10);
+      return [firstX, firstY];
+    };
+
     this.drag = d3.behavior.drag()
-      .on('drag', function(d,i) {
-        d3.select(this).attr('transform', function(d,i){
-          return 'translate(' + (this.getBoundingClientRect().x + (<any>d3).event.dx) + ',' +
-            (this.getBoundingClientRect().y + (<any>d3).event.dy) + ')';
+      .on('drag', function (d, i) {
+        d3.select(this).attr('transform', function (d, i) {
+          const [firstX, firstY] = parseTranslate(this);
+
+          return 'translate(' + (firstX + (<any>d3).event.dx) + ',' +
+            (firstY + (<any>d3).event.dy) + ')';
         });
       });
 
     // TODO: Remove later as it's just a current workaround as second window is always 200 offset...
     // actually, removed it now and it works
     this.drag2 = d3.behavior.drag()
-      .on('drag', function(d,i) {
-        d3.select(this).attr('transform', function(d,i){
-          return 'translate(' + (this.getBoundingClientRect().x + (<any>d3).event.dx) + ',' +
-            (this.getBoundingClientRect().y + (<any>d3).event.dy) + ')';
+      .on('drag', function (d, i) {
+        d3.select(this).attr('transform', function (d, i) {
+          const [firstX, firstY] = parseTranslate(this);
+
+          return 'translate(' + (firstX + (<any>d3).event.dx) + ',' +
+            (firstY + (<any>d3).event.dy) + ')';
         });
       });
 
@@ -74,7 +88,7 @@ class SankeyDetail implements MAppViews {
    */
   private attachListener() {
     events.on(AppConstants.EVENT_CLICKED_PATH, (evt, data, json, coordinates) => {
-      if (this.clicked <= 1 ) {
+      if (this.clicked <= 1) {
         SimpleLogging.log('flow detail clicked', [data.source.name, data.target.name]);
         this.drawDetails(data, json, coordinates);
         ++this.clicked;
@@ -92,7 +106,7 @@ class SankeyDetail implements MAppViews {
     });
 
     events.on(AppConstants.EVENT_SHOW_DETAIL_SANKEY, (evt, data, json, coordinates) => {
-      if(this.clicked < 1) {
+      if (this.clicked < 1) {
         this.drawDetails(data, json, coordinates);
         ++this.clicked;
       }
@@ -102,7 +116,7 @@ class SankeyDetail implements MAppViews {
   /**
    * This method cleans up the view by removing all generated graphs and charts.
    */
-  private closeDetail () {
+  private closeDetail() {
     this.$node.select('svg.sankey_details').remove();
     this.$node.select('svg.sankey_details2').remove();
   }
@@ -113,7 +127,7 @@ class SankeyDetail implements MAppViews {
    * @param json is the whole data set in order to retrieve all time points for the current node
    */
   private drawDetails(clickedPath, json, coordinates) {
-    const margin = {top: 50 , right: 60, bottom: 60, left: 60},
+    const margin = {top: 50, right: 60, bottom: 60, left: 60},
       w = 400 - margin.left - margin.right,
       h = 200 - margin.top - margin.bottom;
 
@@ -121,7 +135,7 @@ class SankeyDetail implements MAppViews {
     const targetName = clickedPath.target.name;
     const value = clickedPath.target.value;
 
-    const columnLabels : any = JSON.parse(localStorage.getItem('columnLabels'));
+    const columnLabels: any = JSON.parse(localStorage.getItem('columnLabels'));
     // Unit of flows (e.g., '€'). Extracted from CSV header
     const valuePostFix = (columnLabels == null) ? '' : ' ' + columnLabels.valueNode;
 
@@ -139,7 +153,7 @@ class SankeyDetail implements MAppViews {
     const windowHeight = window.innerHeight;
 
     // Position of svg in the sankey_diagram div
-    const xpositionSvg = windowWidth / 2 - (w/2);
+    const xpositionSvg = windowWidth / 2 - (w / 2);
     const ypositionSvg = coordinates[1] + h;
     const newYPositionSvg = ypositionSvg + 10;
 
@@ -160,13 +174,13 @@ class SankeyDetail implements MAppViews {
         .attr('x', 5)
         .attr('y', 16)
         .style('font-size', 11 + 'px')
-        .text(function(d) {
-          return sourceName + ' → ' + targetName + '\u00A0' +  dotFormat(value) + valuePostFix;
+        .text(function (d) {
+          return sourceName + ' → ' + targetName + '\u00A0' + dotFormat(value) + valuePostFix;
         });
 
       const maxTextWidth = (w + margin.left + margin.right - 50);
       const text = this.$node.select('.sankey_details').select('.headingDetailSankey').selectAll('text');
-      d3TextWrap(text , maxTextWidth, 5, 5);
+      d3TextWrap(text, maxTextWidth, 5, 5);
 
       this.toolbox = d3.select('svg.sankey_details')
         .append('g')
@@ -175,27 +189,31 @@ class SankeyDetail implements MAppViews {
 
       this.toolbox.append('text')
         .attr('font-family', 'FontAwesome')
-        .text(function(d) { return ' ' + '\uf24a';})
+        .text(function (d) {
+          return ' ' + '\uf24a';
+        })
         .style('z-index', '200000')
         .attr('x', '354')
         .attr('y', '10')
         .attr('class', 'addNotes')
-        .on('mouseover', function(d) {
+        .on('mouseover', function (d) {
           tooltip.transition().duration(200).style('opacity', .9);
           tooltip.html('Add Notes to this particular flow!')
-            .style('left', ((<any>d3).event.pageX -40) + 'px')
+            .style('left', ((<any>d3).event.pageX - 40) + 'px')
             .style('top', ((<any>d3).event.pageY - 20) + 'px');
         })
-        .on('mouseout', function(d) {
+        .on('mouseout', function (d) {
           tooltip.transition().duration(500).style('opacity', 0);
         })
-        .on('click', function(d){
+        .on('click', function (d) {
           alert('Save NOTES in a feature version!!');
         });
 
       this.toolbox.append('text')
         .attr('font-family', 'FontAwesome')
-        .text(function (d) { return ' ' + '\uf019'; })
+        .text(function (d) {
+          return ' ' + '\uf019';
+        })
         .style('z-index', '200000')
         .attr('x', '336')
         .attr('y', '10')
@@ -239,13 +257,13 @@ class SankeyDetail implements MAppViews {
         .attr('x', 5)
         .attr('y', 16)
         .style('font-size', 11 + 'px')
-        .text(function(d) {
-          return sourceName + ' → ' + targetName + '\u00A0' +  dotFormat(value) + valuePostFix;
+        .text(function (d) {
+          return sourceName + ' → ' + targetName + '\u00A0' + dotFormat(value) + valuePostFix;
         });
 
       const maxTextWidth = (w + margin.left + margin.right - 50);
       const text = this.$node.select('.sankey_details2').selectAll('text');
-      d3TextWrap(text , maxTextWidth, 5, 5);
+      d3TextWrap(text, maxTextWidth, 5, 5);
 
       this.toolbox2 = d3.select('svg.sankey_details2')
         .append('g')
@@ -254,27 +272,31 @@ class SankeyDetail implements MAppViews {
 
       this.toolbox2.append('text')
         .attr('font-family', 'FontAwesome')
-        .text(function(d) { return ' ' + '\uf24a';})
+        .text(function (d) {
+          return ' ' + '\uf24a';
+        })
         .style('z-index', '200000')
         .attr('x', '354')
         .attr('y', '10')
         .attr('class', 'addNotes')
-        .on('mouseover', function(d) {
+        .on('mouseover', function (d) {
           tooltip.transition().duration(200).style('opacity', .9);
           tooltip.html('Add Notes to this particular flow!')
-            .style('left', ((<any>d3).event.pageX -40) + 'px')
+            .style('left', ((<any>d3).event.pageX - 40) + 'px')
             .style('top', ((<any>d3).event.pageY - 20) + 'px');
         })
-        .on('mouseout', function(d) {
+        .on('mouseout', function (d) {
           tooltip.transition().duration(500).style('opacity', 0);
         })
-        .on('click', function(d){
+        .on('click', function (d) {
           alert('Save NOTES in a feature version!!');
         });
 
       this.toolbox2.append('text')
         .attr('font-family', 'FontAwesome')
-        .text(function (d) { return ' ' + '\uf019'; })
+        .text(function (d) {
+          return ' ' + '\uf019';
+        })
         .style('z-index', '200000')
         .attr('x', '336')
         .attr('y', '10')
@@ -328,11 +350,15 @@ class SankeyDetail implements MAppViews {
       .range([h, 0]);
 
     const timePoints = d3.set(
-      json.map(function (d: any) { return d.timeNode; })
+      json.map(function (d: any) {
+        return d.timeNode;
+      })
     ).values().sort();
 
     x.domain(timePoints);
-    y.domain([0, d3.max(data, function(d) { return d.valueNode; })]);
+    y.domain([0, d3.max(data, function (d) {
+      return d.valueNode;
+    })]);
 
     if (this.drawBarChart === 0) {
       // Add the svg for the bars and transform it slightly to be in position of the box
@@ -364,17 +390,23 @@ class SankeyDetail implements MAppViews {
       .enter()
       .append('rect')
       .attr('class', 'bar')
-      .attr('x', function(d, i) { return x(d.timeNode); })
+      .attr('x', function (d, i) {
+        return x(d.timeNode);
+      })
       .attr('width', x.rangeBand())
-      .attr('y', function(d) { return y(d.valueNode); }) // h - y(d.valueNode);
-      .attr('height', function(d) { return y(0) - y(d.valueNode); })
-      .on('mouseover', function(d) {
+      .attr('y', function (d) {
+        return y(d.valueNode);
+      }) // h - y(d.valueNode);
+      .attr('height', function (d) {
+        return y(0) - y(d.valueNode);
+      })
+      .on('mouseover', function (d) {
         tooltip.transition().duration(200).style('opacity', .9);
         tooltip.html(dotFormat(d.valueNode))
-          .style('left', ((<any>d3).event.pageX -40) + 'px')
+          .style('left', ((<any>d3).event.pageX - 40) + 'px')
           .style('top', ((<any>d3).event.pageY - 20) + 'px');
       })
-      .on('mouseout', function(d) {
+      .on('mouseout', function (d) {
         tooltip.transition().duration(500).style('opacity', 0);
       });
 
@@ -402,13 +434,17 @@ class SankeyDetail implements MAppViews {
     const format = d3.format(',');
     this.detailSVG.append('g')
       .attr('class', 'y axis')
-      .call(yAxis.ticks(4).tickFormat((d) => { return format(d).replace(',', '.'); }));
+      .call(yAxis.ticks(4).tickFormat((d) => {
+        return format(d).replace(',', '.');
+      }));
 
     // Append the close button or link to the SVG
     const close = this.detailSVG.append('g').attr('class', 'closeLink');
     close.append('text')
       .attr('font-family', 'FontAwesome')
-      .text(function(d) { return ' ' + '\uf057';})
+      .text(function (d) {
+        return ' ' + '\uf057';
+      })
       .style('z-index', '200000')
       .attr('font-size', 15 + 'px')
       .attr('x', '310')
@@ -418,6 +454,7 @@ class SankeyDetail implements MAppViews {
       });
   }
 }
+
 /**
  * Factory method to create a new SankeyDiagram instance
  * @param parent

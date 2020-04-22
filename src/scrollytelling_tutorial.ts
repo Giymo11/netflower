@@ -84,12 +84,10 @@ class ScrollytellingTutorial implements MAppViews {
       this.attachListener();
       this.exitedTutorial = exitedTutorial as Boolean;
       this.updateTutorialEnabled();
-    });
-
-    events.on(AppConstants.EVENT_UI_COMPLETE, (evt, data) => {
       this.hideView();
 
       this.waypoints = Array.from(document.querySelectorAll('.scrollytelling_waypoint'));
+      console.log('waypoints', this.waypoints);
       this.indicator = document.querySelector('#scrollytelling_indicator');
 
       this.updateViewForCurrentProgress();
@@ -112,8 +110,9 @@ class ScrollytellingTutorial implements MAppViews {
   private updateTutorialEnabled() {
     if (this.exitedTutorial) {
       $('.scrollytelling-tutorial').removeClass('scrollytelling-tutorial');
-      $('.scrollytelling_container').addClass('scrollytelling-disabled');
+      $('.scrollytelling_tutorial').addClass('scrollytelling-disabled');
       $('.scrollytelling_tutorial-hider').addClass('scrollytelling-disabled');
+      $('#scrollytelling_indicator').addClass('scrollytelling-disabled');
       // $('.sankey_features').addClass('scrollytelling-tutorial');
     } else {
       $('.sankey_features').addClass('scrollytelling-tutorial');
@@ -146,10 +145,17 @@ class ScrollytellingTutorial implements MAppViews {
       for (const view of this.viewsToHide) {
         $(view).removeClass('scrollytelling-hidden');
       }
-    } else {
+      if (this.currentOverlap) {
+        document.getElementById(this.currentOverlap).classList.remove('scrolltelling-highlighted');
+      }
+    } else if (this.waypoints) {
       for (const waypoint of this.waypoints) {
         if (this.overlap(this.indicator, waypoint)) {
           console.log(waypoint.id);
+          if (this.currentOverlap) {
+            document.getElementById(this.currentOverlap).classList.remove('scrolltelling-highlighted');
+          }
+          waypoint.classList.add('scrolltelling-highlighted');
           this.hideView();
           for (let i = 0; i < this.viewsToHide.length; ++i) {
             $(this.viewsToHide[i]).removeClass('scrollytelling-hidden');

@@ -3,7 +3,7 @@
   height: 100%;
   width: 20%;
   top: 176px;
-  left: 32px;
+  left: 80%;
   margin-top: 30px;
   margin-bottom: 20px;
   margin-right: 10px;
@@ -32,6 +32,10 @@
   max-width: 100%;
 }
 
+.scrolltelling-highlighted {
+  background: #fcc;
+}
+
 body {
 
 }
@@ -44,7 +48,7 @@ body {
   width: 20%;
   position: fixed;
   top: 30vh;
-  left: -1em;
+  left: calc(80% - 4em);
 
   svg {
 
@@ -88,11 +92,15 @@ body {
   position: fixed;
 }
 
-.sankey_details.scrollytelling-tutorial {
+.sankey_details, .sankey_details2 {
+  position: absolute;
+}
+
+.scrollytelling-tutorial ~ .sankey_details {
   position: fixed;
 }
 
-.sankey_details2.scrollytelling-tutorial {
+.scrollytelling-tutorial ~ .sankey_details2 {
   position: fixed;
 }
 
@@ -100,10 +108,13 @@ body {
   display: none;
 }
 
+#scrollytelling_indicator.scrollytelling-disabled {
+  display: none;
+}
 
-.scrollytelling_container.scrollytelling-disabled {
-  height: 800px;
-  width: 340px;
+.scrollytelling_tutorial.scrollytelling-disabled {
+  position: fixed;
+  height: 80%;
 }
 
 

@@ -80,11 +80,6 @@ export class App implements MAppViews {
       options: {}
     },
     {
-      view: 'ScrollytellingTutorial',
-      parent: 'dataVizView',
-      options: {},
-    },
-    {
       view: 'DataImport',
       parent: 'dataLoadingView',
       options: {},
@@ -108,6 +103,11 @@ export class App implements MAppViews {
       view: 'SparklineBarChartTarget',
       parent: 'dataVizView',
       options: {'parentDOM' : 'div.right_bars', 'field': 'targetNode'},
+    },
+    {
+      view: 'ScrollytellingTutorial',
+      parent: 'dataVizView',
+      options: {},
     },
     {
       view: 'Export',
