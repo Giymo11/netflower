@@ -19,6 +19,7 @@ export class ScrollytellingConstants {
   static ABOUT = 'scrollytelling_waypoint-about';
   static VIS_MAIN = 'scrollytelling_waypoint-vis-main';
   static VIS_CHART = 'scrollytelling_waypoint-vis-chart';
+  static VIS_LOAD = 'scrollytelling-waypoint-vis-load';
   static VIS_DETAIL = 'scrollytelling_waypoint-vis-detail';
   static FILTER_TIME = 'scrollytelling_waypoint-filter-time';
   static FILTER_SORT = 'scrollytelling_waypoint-filter-sort';
@@ -39,9 +40,10 @@ class ScrollytellingTutorial implements MAppViews {
   private currentOverlap;
   private viewsToHide = [
     '',
-    '.left_bars, .right_bars',
-    '.tooltip2',
     '',
+    '.left_bars, .right_bars',
+    '.load_more',
+    '.tooltip2',
     '.sankey_features-filter-time',
     '.sankey_features-filter-sort',
     '.sankey_features-filter-export',
@@ -56,6 +58,7 @@ class ScrollytellingTutorial implements MAppViews {
     ScrollytellingConstants.ABOUT,
     ScrollytellingConstants.VIS_MAIN,
     ScrollytellingConstants.VIS_CHART,
+    ScrollytellingConstants.VIS_LOAD,
     ScrollytellingConstants.VIS_DETAIL,
     ScrollytellingConstants.FILTER_TIME,
     ScrollytellingConstants.FILTER_SORT,
@@ -87,7 +90,6 @@ class ScrollytellingTutorial implements MAppViews {
       this.hideView();
 
       this.waypoints = Array.from(document.querySelectorAll('.scrollytelling_waypoint'));
-      console.log('waypoints', this.waypoints);
       this.indicator = document.querySelector('#scrollytelling_indicator');
 
       this.updateViewForCurrentProgress();
@@ -113,6 +115,7 @@ class ScrollytellingTutorial implements MAppViews {
       $('.scrollytelling_tutorial').addClass('scrollytelling-disabled');
       $('.scrollytelling_tutorial-hider').addClass('scrollytelling-disabled');
       $('#scrollytelling_indicator').addClass('scrollytelling-disabled');
+      $('#loadMoreBtn').attr('disabled', null);
       // $('.sankey_features').addClass('scrollytelling-tutorial');
     } else {
       $('.sankey_features').addClass('scrollytelling-tutorial');
@@ -120,6 +123,7 @@ class ScrollytellingTutorial implements MAppViews {
       $('.sankey_details').addClass('scrollytelling-tutorial');
       $('.sankey_details2').addClass('scrollytelling-tutorial');
       $('.scrollytelling-disabled').removeClass('scrollytelling-disabled');
+      $('#loadMoreBtn').attr('disabled', 'disabled');
     }
     this.updateViewForCurrentProgress();
   }
@@ -151,7 +155,6 @@ class ScrollytellingTutorial implements MAppViews {
     } else if (this.waypoints) {
       for (const waypoint of this.waypoints) {
         if (this.overlap(this.indicator, waypoint)) {
-          console.log(waypoint.id);
           if (this.currentOverlap) {
             document.getElementById(this.currentOverlap).classList.remove('scrolltelling-highlighted');
           }
@@ -160,10 +163,10 @@ class ScrollytellingTutorial implements MAppViews {
           for (let i = 0; i < this.viewsToHide.length; ++i) {
             $(this.viewsToHide[i]).removeClass('scrollytelling-hidden');
             if (this.breakpoints[i] === waypoint.id) {
-              if (waypoint.id === ScrollytellingConstants.VIS_CHART && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
+              if (waypoint.id === ScrollytellingConstants.VIS_LOAD && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
                 events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
               }
-              if (waypoint.id === ScrollytellingConstants.VIS_DETAIL && this.currentOverlap === ScrollytellingConstants.VIS_CHART) {
+              if (waypoint.id === ScrollytellingConstants.VIS_DETAIL && this.currentOverlap === ScrollytellingConstants.VIS_LOAD) {
                 document.querySelector('#sankeyDiagram path.link')
                   .dispatchEvent(new MouseEvent('show', {clientX: 200, clientY: 200}));
               }
@@ -246,7 +249,7 @@ class ScrollytellingTutorial implements MAppViews {
         </ol>
       </div>
 
-      <div>
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_LOAD}">
         <p>
           On the bottom of the site, you find two buttons <b>'Show Less'</b> and
           <b>'Show More'</b>. Here you can load more nodes or show less nodes.
