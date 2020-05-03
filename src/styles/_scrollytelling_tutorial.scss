@@ -1,4 +1,4 @@
-.scrollytelling_tutorial {
+.scrollytelling_tutorial.scrollytelling-tutorial {
   z-index: 1;
   height: 100%;
   width: 20%;
@@ -12,6 +12,19 @@
   position: relative;
 
   overflow: auto;
+}
+
+.scrollytelling_tutorial.scrollytelling-disabled {
+  width: 20%;
+}
+
+.scrollytelling_container {
+  padding: 5%;
+}
+
+
+.scrollytelling_tutorial {
+
 }
 
 .scrollytelling_tutorial h3 {
@@ -43,6 +56,7 @@ body {
 .app {
 }
 
+
 #scrollytelling_indicator {
   height: 4em;
   width: 20%;
@@ -58,7 +72,7 @@ body {
 #btnExitTutorial {
   font-size: 1.5em;
   padding: 0.4em 1.6em;
-  margin: 1em 4em 25vh;
+  margin: 1em auto 25vh;
 }
 
 .scrollytelling_waypoint {
@@ -112,10 +126,6 @@ body {
   display: none;
 }
 
-.scrollytelling_tutorial.scrollytelling-disabled {
-  position: fixed;
-  height: 80%;
-}
 
 
 

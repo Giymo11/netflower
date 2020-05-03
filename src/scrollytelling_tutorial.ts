@@ -83,14 +83,15 @@ class ScrollytellingTutorial implements MAppViews {
   init(): Promise<MAppViews> {
     const that = this;
     localforage.getItem('scrollytelling_exited-tutorial').then((exitedTutorial) => {
-      this.build();
-      this.attachListener();
+
+
+      $(document).on('scroll', function () {
+        debounce(that.updateViewForCurrentProgress.bind(that), 80)();
+      });
+
       this.exitedTutorial = exitedTutorial as Boolean;
       this.updateTutorialEnabled();
       this.hideView();
-
-      this.waypoints = Array.from(document.querySelectorAll('.scrollytelling_waypoint'));
-      this.indicator = document.querySelector('#scrollytelling_indicator');
 
       this.updateViewForCurrentProgress();
     });
@@ -110,6 +111,8 @@ class ScrollytellingTutorial implements MAppViews {
   }
 
   private updateTutorialEnabled() {
+    this.build();
+
     if (this.exitedTutorial) {
       $('.scrollytelling-tutorial').removeClass('scrollytelling-tutorial');
       $('.scrollytelling_tutorial').addClass('scrollytelling-disabled');
@@ -117,14 +120,27 @@ class ScrollytellingTutorial implements MAppViews {
       $('#scrollytelling_indicator').addClass('scrollytelling-disabled');
       $('#loadMoreBtn').attr('disabled', null);
       // $('.sankey_features').addClass('scrollytelling-tutorial');
+
+      (<any>$('.scrollytelling_tutorial')).BootSideMenu({
+        side: 'right',
+        pushBody: true,
+        autoClose: false,
+      });
+
     } else {
       $('.sankey_features').addClass('scrollytelling-tutorial');
       $('.sankey_diagram').addClass('scrollytelling-tutorial');
       $('.sankey_details').addClass('scrollytelling-tutorial');
       $('.sankey_details2').addClass('scrollytelling-tutorial');
+      $('.scrollytelling_tutorial').addClass('scrollytelling-tutorial');
       $('.scrollytelling-disabled').removeClass('scrollytelling-disabled');
       $('#loadMoreBtn').attr('disabled', 'disabled');
     }
+
+    this.attachListener();
+    this.waypoints = Array.from(document.querySelectorAll('.scrollytelling_waypoint'));
+    this.indicator = document.querySelector('#scrollytelling_indicator');
+
     this.updateViewForCurrentProgress();
   }
 
@@ -188,9 +204,6 @@ class ScrollytellingTutorial implements MAppViews {
    */
   private attachListener() {
     const that = this;
-    $(document).on('scroll', function () {
-      debounce(that.updateViewForCurrentProgress.bind(that), 80)();
-    });
     this.$node.select('#btnExitTutorial').on('click', (d) => {
       events.fire(AppConstants.EVENT_EXIT_TURORIAL, d, null);
     });
