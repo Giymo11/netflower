@@ -394,10 +394,13 @@ class SankeyDiagram implements MAppViews {
     const widthNode = this.$node.select('.sankey_vis').node().getBoundingClientRect().width;
     const heightNode = this.$node.select('.sankey_vis').node().getBoundingClientRect().height;
 
-    const margin = {top: AppConstants.SANKEY_TOP_MARGIN, right: 120, bottom: 10, left: 120};
+    const marginLeftRight = widthNode > 710 ? 120 : 100;
+    const widthOffset = widthNode > 710 ? 200 : 140;
+    const manageEntityOffset = widthNode > 710 ? 170 : 140;
+
+    const margin = {top: AppConstants.SANKEY_TOP_MARGIN, right: marginLeftRight, bottom: 10, left: marginLeftRight};
     const width = widthNode - margin.left - margin.right;
     const height = heightNode - margin.top - margin.bottom - headingOffset - footerOffset;
-    const widthOffset = 200;
 
     // Append the svg canvas to the page
     const svg = d3.select('#sankeyDiagram').append('svg')
@@ -678,7 +681,7 @@ class SankeyDiagram implements MAppViews {
       if (!that.pipeline.getTagFlowFilterStatus()) {
         const managers = node.append('g');
         const buttons = managers.append('text')
-          .attr('x', 170)
+          .attr('x', manageEntityOffset)
           .attr('y', function (d) {
             return (d.dy / 2) - 7;
           })
@@ -699,7 +702,7 @@ class SankeyDiagram implements MAppViews {
           .filter(function (d, i) {
             return d.x < width / 2;
           })
-          .attr('x', -170 + (sankey.nodeWidth() - 20))
+          .attr('x', -manageEntityOffset + (sankey.nodeWidth() - 20))
           .attr('text-anchor', 'end')
           .attr('class', function (d) {
             if (that.getNumOfTagsForEntityNode(json, d.name) === 'No Tags') {

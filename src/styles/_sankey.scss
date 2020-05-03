@@ -229,6 +229,12 @@ node text {
   font-size: 16px;
 }
 
+.right_bar_heading > p {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
 .controlBox {
   height: 130px;
   width: 100%;
