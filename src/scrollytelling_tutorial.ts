@@ -123,8 +123,23 @@ class ScrollytellingTutorial implements MAppViews {
 
       (<any>$('.scrollytelling_tutorial')).BootSideMenu({
         side: 'right',
-        pushBody: true,
-        autoClose: false,
+        autoClose: false
+      });
+
+      $(document).on('click', '.scrollytelling_tutorial .toggler', function () {
+        const toggler = $(this);
+        const container = toggler.parent();
+        let status = container.attr('data-status');
+        if (!status) {
+          status = 'opened';
+        }
+        if(status === 'opened') {
+          $('.sankey_diagram').removeClass('fullscreen');
+          events.fire(AppConstants.EVENT_RESIZE_WINDOW);
+        } else {
+          $('.sankey_diagram').addClass('fullscreen');
+          events.fire(AppConstants.EVENT_RESIZE_WINDOW);
+        }
       });
 
     } else {

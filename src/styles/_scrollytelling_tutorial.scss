@@ -106,6 +106,10 @@ body {
   position: fixed;
 }
 
+.sankey_diagram.fullscreen {
+  width: 96%;
+}
+
 .sankey_details, .sankey_details2 {
   position: absolute;
 }
