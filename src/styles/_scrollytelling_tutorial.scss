@@ -45,8 +45,13 @@
   max-width: 100%;
 }
 
-.scrolltelling-highlighted {
+.scrollytelling-highlighted {
   background: #fcc;
+  padding: 0.5vw;
+}
+
+.noFill.scrollytelling-highlighted {
+  fill: #f99 !important;
 }
 
 body {

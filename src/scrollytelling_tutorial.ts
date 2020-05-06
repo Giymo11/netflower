@@ -49,7 +49,6 @@ class ScrollytellingTutorial implements MAppViews {
     '.sankey_features-filter-export',
     '.sankey_diagram-slider, .middle_bars',
     '.sankey_diagram-search',
-    '',
     '.manageEntityTag, .manageMediaTag',
     '.sankey_diagram-tagfilter',
     '.sankey_features-tag-flow',
@@ -65,7 +64,6 @@ class ScrollytellingTutorial implements MAppViews {
     ScrollytellingConstants.FILTER_EXPORT,
     ScrollytellingConstants.FILTER_LIMIT,
     ScrollytellingConstants.FILTER_SEARCH,
-    ScrollytellingConstants.TAG_DATA,
     ScrollytellingConstants.TAG_ADD,
     ScrollytellingConstants.TAG_FILTER,
     ScrollytellingConstants.TAG_FLOW,
@@ -176,24 +174,23 @@ class ScrollytellingTutorial implements MAppViews {
   }
 
   private updateViewForCurrentProgress() {
+    $('.scrollytelling-highlighted').removeClass('scrollytelling-highlighted');
     if (this.exitedTutorial) {
       for (const view of this.viewsToHide) {
         $(view).removeClass('scrollytelling-hidden');
       }
-      if (this.currentOverlap) {
-        document.getElementById(this.currentOverlap).classList.remove('scrolltelling-highlighted');
-      }
     } else if (this.waypoints) {
       for (const waypoint of this.waypoints) {
         if (this.overlap(this.indicator, waypoint)) {
-          if (this.currentOverlap) {
-            document.getElementById(this.currentOverlap).classList.remove('scrolltelling-highlighted');
-          }
-          waypoint.classList.add('scrolltelling-highlighted');
+          waypoint.classList.add('scrollytelling-highlighted');
           this.hideView();
           for (let i = 0; i < this.viewsToHide.length; ++i) {
             $(this.viewsToHide[i]).removeClass('scrollytelling-hidden');
             if (this.breakpoints[i] === waypoint.id) {
+              $(this.viewsToHide[i]).addClass('scrollytelling-highlighted');
+              if(waypoint.id === ScrollytellingConstants.VIS_MAIN) {
+                $('#sankeyDiagram').addClass('scrollytelling-highlighted');
+              }
               if (waypoint.id === ScrollytellingConstants.VIS_LOAD && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
                 events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
               }
@@ -360,7 +357,7 @@ class ScrollytellingTutorial implements MAppViews {
         </ol>
       </div>
 
-      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.TAG_DATA}">
+      <div class="" id="${ScrollytellingConstants.TAG_DATA}">
         <h3 id="tags">
           Use Tags
         </h3>
