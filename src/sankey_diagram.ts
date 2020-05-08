@@ -269,7 +269,6 @@ class SankeyDiagram implements MAppViews {
 
     // Listen for changed data and redraw all
     events.on(AppConstants.EVENT_FILTER_CHANGED, (evt, data) => {
-      this.$node.select('#sankeyDiagram').html('');
       // Redraw Sankey Diagram
       this.getStorageData(true);
       // Update the input fields
@@ -317,8 +316,6 @@ class SankeyDiagram implements MAppViews {
    * This method gets called whenever the page is resized.
    */
   private resize() {
-    d3.select('#sankeyDiagram').html('');
-
     // Resize the box for the Tags
     d3.selectAll('.tagFilterBox').style('width', function () {
       return (d3.select('.controlBox') as any).node().getBoundingClientRect().width + 'px';
@@ -351,6 +348,9 @@ class SankeyDiagram implements MAppViews {
 
         events.fire(AppConstants.EVENT_UI_COMPLETE, originalData);
         SimpleLogging.log('initialize sankey', JSON.parse(localStorage.getItem('columnLabels')));
+      } else {
+        d3.select('#sankeyDiagram').html('');
+        d3.selectAll('.barchart').html('');
       }
 
       // Update the tags for the legal entities as well as the media institutions
@@ -827,8 +827,6 @@ class SankeyDiagram implements MAppViews {
       this.sankeyHeight += (120 * FlowSorter.getInstance().getExtent());
       this.$node.select('.sankey_vis').style('height', this.sankeyHeight + 'px');
 
-      d3.select('#sankeyDiagram').html('');
-      d3.selectAll('.barchart').html('');
       // This is necessary in order to increase the height of the barchart svgs
       const headingOffset = this.$node.select('.controlBox').node().getBoundingClientRect().height;
       const footerOffset = this.$node.select('.load_more').node().getBoundingClientRect().height + 15;
@@ -848,8 +846,6 @@ class SankeyDiagram implements MAppViews {
 
       FlowSorter.getInstance().showLess();
 
-      d3.select('#sankeyDiagram').html('');
-      d3.selectAll('.barchart').html('');
       this.getStorageData(true);
       // This is necessary in order to reduce the height of the barchart svgs
       const headingOffset = this.$node.select('.controlBox').node().getBoundingClientRect().height;
@@ -862,8 +858,6 @@ class SankeyDiagram implements MAppViews {
     });
 
     events.on(AppConstants.EVENT_SORT_CHANGE, (evt) => {
-      d3.select('#sankeyDiagram').html('');
-      d3.selectAll('.barchart').html('');
       this.getStorageData(true);
     });
 
