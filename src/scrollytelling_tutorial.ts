@@ -42,8 +42,8 @@ class ScrollytellingTutorial implements MAppViews {
     '',
     '',
     '.left_bars, .right_bars',
-    '.load_more',
-    '.tooltip2',
+    '.load_more, .tooltip2',
+    '',
     '.sankey_features-filter-time',
     '.sankey_features-filter-sort',
     '.sankey_features-filter-export',
@@ -257,9 +257,8 @@ class ScrollytellingTutorial implements MAppViews {
         <ol start="1">
           <li>
             The main visualization is a sankey diagram. You read the sankey
-            diagram from left to right. In this example you see the number of
-            Asylum seekers which make an application. The left side show the
-            origin countries and on the right are the destination countries.
+            diagram from left to right. The left side shows the
+            origin and on the right are the destinations.
           </li>
         </ol>
       </div>
@@ -267,9 +266,8 @@ class ScrollytellingTutorial implements MAppViews {
       <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_CHART}">
         <ol start="2">
           <li>
-            The small bar charts left and right show the amount of asylum
-            applications over time from the original country and destination
-            country point of view.
+            The small bar charts left and right show the amount over time, from the
+            point of view of the source and the target.
           </li>
         </ol>
       </div>
@@ -290,16 +288,13 @@ class ScrollytellingTutorial implements MAppViews {
       <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_DETAIL}">
         <p>
           <b>Detailed view</b>: By clicking on one connection line in the sankey
-          diagram, you get a detail view showing the amount of asylum
-          applications between the two nodes (origin countries and destination
-          countries).
+          diagram, you get a detail view showing the amount between the two nodes (origin and destination).
         </p>
       </div>
 
       <div>
         <p>
-          The screen picture shows the <b>visual encoding</b>. There is this
-          example table of asylum data. The lines from the table to the sankey
+          [Not yet implemented] The screen picture shows the <b>visual encoding</b>. The lines from the table to the sankey
           diagram show the encoding from the data to the visual element - in
           this case a sankey diagram.
         </p>
@@ -342,8 +337,7 @@ class ScrollytellingTutorial implements MAppViews {
       <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.FILTER_LIMIT}">
         <ol start="4">
           <li>
-            You can limit the number of asylum applications by using the slider
-            on both sides.
+            You can set limits by using the sliders on both sides.
           </li>
         </ol>
       </div>
@@ -351,8 +345,8 @@ class ScrollytellingTutorial implements MAppViews {
       <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.FILTER_SEARCH}">
         <ol start="5">
           <li>
-            Search for a particular country in the origin and also in the
-            destination countries using the seach box.
+            Search for a node in the origin and also in the
+            destination using the search box.
           </li>
         </ol>
       </div>
@@ -397,7 +391,7 @@ class ScrollytellingTutorial implements MAppViews {
         <ol start="4">
           <li>
             To see the flows between given tags you can switch the view in the
-            header, as it is desribed in the video.
+            header   <!--, as it is described in the video.-->
           </li>
         </ol>
       </div>
@@ -423,7 +417,7 @@ class ScrollytellingTutorial implements MAppViews {
         </p>
         <p>
           Please notice, that if you clean your browser forcefully or shut down
-          your device, the data gets lost. However, if you referesh the page or
+          your device, the data gets lost. However, if you refresh the page or
           go back to it if you closed the browser normally it will still be
           there!
         </p>
