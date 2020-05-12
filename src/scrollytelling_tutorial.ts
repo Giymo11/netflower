@@ -21,6 +21,7 @@ export class ScrollytellingConstants {
   static VIS_CHART = 'scrollytelling_waypoint-vis-chart';
   static VIS_LOAD = 'scrollytelling-waypoint-vis-load';
   static VIS_DETAIL = 'scrollytelling_waypoint-vis-detail';
+  static VIS_ENCODING = 'scrollytelling_waypoint-vis-encoding';
   static FILTER_TIME = 'scrollytelling_waypoint-filter-time';
   static FILTER_SORT = 'scrollytelling_waypoint-filter-sort';
   static FILTER_EXPORT = 'scrollytelling_waypoint-filter-export';
@@ -44,6 +45,7 @@ class ScrollytellingTutorial implements MAppViews {
     '.left_bars, .right_bars',
     '.load_more, .tooltip2',
     '',
+    '',
     '.sankey_features-filter-time',
     '.sankey_features-filter-sort',
     '.sankey_features-filter-export',
@@ -59,6 +61,7 @@ class ScrollytellingTutorial implements MAppViews {
     ScrollytellingConstants.VIS_CHART,
     ScrollytellingConstants.VIS_LOAD,
     ScrollytellingConstants.VIS_DETAIL,
+    ScrollytellingConstants.VIS_ENCODING,
     ScrollytellingConstants.FILTER_TIME,
     ScrollytellingConstants.FILTER_SORT,
     ScrollytellingConstants.FILTER_EXPORT,
@@ -82,14 +85,19 @@ class ScrollytellingTutorial implements MAppViews {
     const that = this;
     localforage.getItem('scrollytelling_exited-tutorial').then((exitedTutorial) => {
 
-
       $(document).on('scroll', function () {
         debounce(that.updateViewForCurrentProgress.bind(that), 80)();
       });
 
+      this.drawEncoding();
+
+      events.on(AppConstants.EVENT_UI_COMPLETE, (evt) => {
+        that.drawEncoding();
+      });
+
       this.exitedTutorial = exitedTutorial as Boolean;
       this.updateTutorialEnabled();
-      this.hideView();
+      this.hideAllViews();
 
       this.updateViewForCurrentProgress();
     });
@@ -106,6 +114,49 @@ class ScrollytellingTutorial implements MAppViews {
 
     // Return the promise directly as long there is no dynamical data to update
     return Promise.resolve(this);
+  }
+
+  private drawEncoding() {
+    const path = <SVGPathElement>document.querySelector('.link');
+
+    $('.encodingView').remove();
+
+    const parent = document.createElement('div');
+    parent.className = 'encodingView';
+
+    const pathHeight = +path.getAttribute('stroke-width');
+    const point = path.getPointAtLength(path.getTotalLength() * 0.5);
+    const screenPoint = point.matrixTransform(path.getScreenCTM());
+    const width = '20em';
+    const height = '12em';
+    parent.setAttribute('style',
+      `position: fixed;
+      padding: 0 0;
+      width: ${width};
+      height: ${height};
+      left: calc(${screenPoint.x}px - ${width} / 2);
+      top: calc(${screenPoint.y}px - ${height} / 2);`);
+
+    const indicatorWidth = 10;
+
+    const svg = d3.select(parent)
+      .attr('style', `position: fixed; width: ${indicatorWidth}px; height: ${pathHeight}px; left: calc(${screenPoint.x}px - ${indicatorWidth}px / 2); top: calc(${screenPoint.y}px - ${pathHeight}px / 2);`)
+      .append('svg')
+      .attr('style', 'overflow: visible;');
+
+    svg.append('path')
+      .attr('d', `M 0 0 H ${indicatorWidth} M ${indicatorWidth / 2} 0 V ${pathHeight} M 0 ${pathHeight} H ${indicatorWidth}`)
+      .attr('stroke-width', 1)
+      .attr('stroke', '#000');
+
+    svg.append('text')
+      .attr('x', indicatorWidth)
+      .attr('y', pathHeight / 2 + 6)
+      .text('Value');
+
+
+    document.querySelector('.dataVizView').appendChild(parent);
+    console.log('drawing encoding: ', parent);
   }
 
   private updateTutorialEnabled() {
@@ -131,7 +182,7 @@ class ScrollytellingTutorial implements MAppViews {
         if (!status) {
           status = 'opened';
         }
-        if(status === 'opened') {
+        if (status === 'opened') {
           $('.sankey_diagram').removeClass('fullscreen');
           events.fire(AppConstants.EVENT_RESIZE_WINDOW);
         } else {
@@ -167,43 +218,64 @@ class ScrollytellingTutorial implements MAppViews {
       rect1.top > rect2.bottom);
   }
 
-  private hideView() {
+  private hideAllViews() {
     for (const selector of this.viewsToHide) {
       $(selector).addClass('scrollytelling-hidden');
     }
   }
 
+  private showViewsUntil(waypoint: Element) {
+    for (let i = 0; i < this.viewsToHide.length; ++i) {
+      $(this.viewsToHide[i]).removeClass('scrollytelling-hidden');
+      if (this.breakpoints[i] === waypoint.id) {
+        console.log('current breakpoint no: ' + i);
+        $(this.viewsToHide[i]).addClass('scrollytelling-highlighted');
+        this.handleSpecialCasesFor(waypoint);
+        break;
+      }
+    }
+  }
+
+  private handleSpecialCasesFor(waypoint: Element) {
+    if (waypoint.id === ScrollytellingConstants.VIS_MAIN) {
+      $('#sankeyDiagram').addClass('scrollytelling-highlighted');
+    }
+    if (waypoint.id === ScrollytellingConstants.VIS_LOAD && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
+      events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
+    }
+    if (waypoint.id === ScrollytellingConstants.VIS_DETAIL && this.currentOverlap === ScrollytellingConstants.VIS_LOAD) {
+      document.querySelector('#sankeyDiagram path.link')
+        .dispatchEvent(new MouseEvent('show', {clientX: 200, clientY: 200}));
+    }
+    if (waypoint.id === ScrollytellingConstants.VIS_ENCODING && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
+      events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
+    }
+
+    //TODO: Auto-hide
+    if (waypoint.id === ScrollytellingConstants.VIS_ENCODING) {
+      $('.encodingView').removeClass('scrollytelling-disabled');
+    } else {
+      $('.encodingView').addClass('scrollytelling-disabled');
+      console.log('removing encoding');
+    }
+  }
+
   private updateViewForCurrentProgress() {
+
     $('.scrollytelling-highlighted').removeClass('scrollytelling-highlighted');
+
     if (this.exitedTutorial) {
       for (const view of this.viewsToHide) {
         $(view).removeClass('scrollytelling-hidden');
       }
     } else if (this.waypoints) {
       for (const waypoint of this.waypoints) {
+
         if (this.overlap(this.indicator, waypoint)) {
           waypoint.classList.add('scrollytelling-highlighted');
-          this.hideView();
-          for (let i = 0; i < this.viewsToHide.length; ++i) {
-            $(this.viewsToHide[i]).removeClass('scrollytelling-hidden');
-            if (this.breakpoints[i] === waypoint.id) {
-              $(this.viewsToHide[i]).addClass('scrollytelling-highlighted');
-              if(waypoint.id === ScrollytellingConstants.VIS_MAIN) {
-                $('#sankeyDiagram').addClass('scrollytelling-highlighted');
-              }
-              if (waypoint.id === ScrollytellingConstants.VIS_LOAD && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
-                events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
-              }
-              if (waypoint.id === ScrollytellingConstants.VIS_DETAIL && this.currentOverlap === ScrollytellingConstants.VIS_LOAD) {
-                document.querySelector('#sankeyDiagram path.link')
-                  .dispatchEvent(new MouseEvent('show', {clientX: 200, clientY: 200}));
-              }
-              if (waypoint.id === ScrollytellingConstants.FILTER_TIME && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
-                events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
-              }
-              break;
-            }
-          }
+          this.hideAllViews();
+          this.showViewsUntil(waypoint);
+
           this.currentOverlap = waypoint.id;
           break;
         }
@@ -292,7 +364,7 @@ class ScrollytellingTutorial implements MAppViews {
         </p>
       </div>
 
-      <div>
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_ENCODING}">
         <p>
           [Not yet implemented] The screen picture shows the <b>visual encoding</b>. The lines from the table to the sankey
           diagram show the encoding from the data to the visual element - in

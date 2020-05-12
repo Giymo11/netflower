@@ -508,7 +508,7 @@ class SankeyDiagram implements MAppViews {
         .enter().append('path')
         .attr('class', 'link')
         .attr('d', path)
-        .style('stroke-width', function (d) {
+        .attr('stroke-width', function (d) {
           return Math.max(1, d.dy);
         })
         // Reduce edges crossing
