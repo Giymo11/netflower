@@ -116,14 +116,16 @@ class ScrollytellingTutorial implements MAppViews {
     return Promise.resolve(this);
   }
 
-  private drawEncoding() {
-    const path = <SVGPathElement>document.querySelector('.link');
-
+  private drawEncoding(hidden: Boolean = true) {
     $('.encodingView').remove();
 
     const parent = document.createElement('div');
     parent.className = 'encodingView';
+    if(hidden) {
+      parent.className = parent.className + ' scrollytelling-disabled';
+    }
 
+    const path = <SVGPathElement>document.querySelector('.link');
     const pathHeight = +path.getAttribute('stroke-width');
     const point = path.getPointAtLength(path.getTotalLength() * 0.5);
     const screenPoint = point.matrixTransform(path.getScreenCTM());
@@ -137,15 +139,19 @@ class ScrollytellingTutorial implements MAppViews {
       left: calc(${screenPoint.x}px - ${width} / 2);
       top: calc(${screenPoint.y}px - ${height} / 2);`);
 
-    const indicatorWidth = 10;
+    const indicatorWidth = 12;
 
     const svg = d3.select(parent)
       .attr('style', `position: fixed; width: ${indicatorWidth}px; height: ${pathHeight}px; left: calc(${screenPoint.x}px - ${indicatorWidth}px / 2); top: calc(${screenPoint.y}px - ${pathHeight}px / 2);`)
       .append('svg')
       .attr('style', 'overflow: visible;');
 
+    const arrowUp = `M 0 ${indicatorWidth/2} L ${indicatorWidth/2} 0 L ${indicatorWidth} ${indicatorWidth/2} `;
+    const shaft = `M ${indicatorWidth / 2} 0 V ${pathHeight} `;
+    const arrowDown = `M 0 ${pathHeight - indicatorWidth / 2} L ${indicatorWidth/2} ${pathHeight} L ${indicatorWidth} ${pathHeight - indicatorWidth / 2}`;
+
     svg.append('path')
-      .attr('d', `M 0 0 H ${indicatorWidth} M ${indicatorWidth / 2} 0 V ${pathHeight} M 0 ${pathHeight} H ${indicatorWidth}`)
+      .attr('d', arrowUp + shaft + arrowDown)
       .attr('stroke-width', 1)
       .attr('stroke', '#000');
 
@@ -228,7 +234,6 @@ class ScrollytellingTutorial implements MAppViews {
     for (let i = 0; i < this.viewsToHide.length; ++i) {
       $(this.viewsToHide[i]).removeClass('scrollytelling-hidden');
       if (this.breakpoints[i] === waypoint.id) {
-        console.log('current breakpoint no: ' + i);
         $(this.viewsToHide[i]).addClass('scrollytelling-highlighted');
         this.handleSpecialCasesFor(waypoint);
         break;
@@ -256,7 +261,6 @@ class ScrollytellingTutorial implements MAppViews {
       $('.encodingView').removeClass('scrollytelling-disabled');
     } else {
       $('.encodingView').addClass('scrollytelling-disabled');
-      console.log('removing encoding');
     }
   }
 
