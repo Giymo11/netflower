@@ -44,4 +44,7 @@ export class AppConstants {
   static EVENT_SHOW_DETAIL_SANKEY = 'eventShowDetailSankey';
 
   static EVENT_EXIT_TURORIAL = 'eventExitScrollytellingTutorial';
+
+  static EVENT_REQUEST_CURRENT_DATA = 'eventRequestCurrentData';
+  static EVENT_RESPONSE_CURRENT_DATA = 'eventResponseCurrentData;'
 }

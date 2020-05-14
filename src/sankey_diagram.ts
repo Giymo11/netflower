@@ -13,7 +13,7 @@ import 'style-loader!css-loader!ion-rangeslider/css/ion.rangeSlider.css';
 import 'style-loader!css-loader!ion-rangeslider/css/ion.rangeSlider.skinNice.css';
 import 'imports-loader?d3=d3!../lib/sankey.js';
 import {AppConstants} from './app_constants';
-import {MAppViews} from './app';
+import {App, MAppViews} from './app';
 import {
   roundToFull, dotFormat, textTransition, d3TextEllipse,
   Tooltip, assembleNodeTooltip
@@ -40,6 +40,7 @@ import SimpleLogging from './simpleLogging';
 import FlowSorter from './flowSorter';
 import FilterTagDialog from './dialogs/filterTagDialog';
 import ManageTagDialog from './dialogs/manageTagDialog';
+import {time} from 'd3';
 
 
 class SankeyDiagram implements MAppViews {
@@ -374,14 +375,53 @@ class SankeyDiagram implements MAppViews {
 
   /**
    * This function draws the whole sankey visualization by using the data which is passed from the storage.
-   * @param json data from the read functionality
+   * @param filteredData data from the read functionality
    */
-  private buildSankey(json, origJson) {
+  private buildSankey(filteredData, originalData) {
     const that = this;
+
+    // Aggregate flow by source and target (i.e. sum multiple times and attributes)
+    let nestedAndSortedData = d3.nest()
+      .key((d: any) => {
+        // First define keys
+        if (that.pipeline.getTagFlowFilterStatus()) {
+          return d.sourceTag + '|$|' + d.targetTag;
+        } else {
+          return d.sourceNode + '|$|' + d.targetNode;
+        }
+      })
+      .rollup(function (v: any[]) { // construct object
+        return {
+          source: ((that.pipeline.getTagFlowFilterStatus()) ? v[0].sourceTag : v[0].sourceNode),
+          target: ((that.pipeline.getTagFlowFilterStatus()) ? v[0].targetTag : v[0].targetNode),
+          value: d3.sum(v, function (d: any) {
+            return d.valueNode;
+          }),
+          time: v[0].timeNode
+        };
+      })
+      .entries(filteredData)
+      .map((o) => o.values) // Remove key/values
+      .filter((e) => {
+        return e.value > 0;
+      }); // Remove entries whos sum is smaller than 0
+
+    if (that.pipeline.getTagFlowFilterStatus()) {
+      nestedAndSortedData = nestedAndSortedData.filter(function (d) {
+        return (d.source !== '' && d.source !== undefined) && (d.target !== '' && d.target !== undefined);
+      });
+    }
+
+    this.drawSankey(filteredData, originalData, nestedAndSortedData);
+    this.drawEncoding(nestedAndSortedData);
+  }
+
+  private drawSankey(filteredData: any, originalData: any, nestedAndSortedData: any) {
+    const that = this;
+
     const sankey = (<any>d3).sankey();
-    const timePoints: any = d3.set(json.map(function (d: any) {
-      return d.timeNode;
-    })).values().sort();
+
+    const timePoints: any = d3.set(filteredData.map((d: any) => d.timeNode)).values().sort();
     const selectedTimePointsAsString = (timePoints.length > 1)
       ? TimeFormat.format(timePoints[0]) + ' \u2013 ' + TimeFormat.format(timePoints[timePoints.length - 1])
       : TimeFormat.format(timePoints[0]);
@@ -417,37 +457,6 @@ class SankeyDiagram implements MAppViews {
 
     const path = sankey.link();
 
-    // Aggregate flow by source and target (i.e. sum multiple times and attributes)
-    let flatNest = d3.nest()
-      .key((d: any) => {
-        // First define keys
-        if (that.pipeline.getTagFlowFilterStatus()) {
-          return d.sourceTag + '|$|' + d.targetTag;
-        } else {
-          return d.sourceNode + '|$|' + d.targetNode;
-        }
-      })
-      .rollup(function (v: any[]) { // construct object
-        return {
-          source: ((that.pipeline.getTagFlowFilterStatus()) ? v[0].sourceTag : v[0].sourceNode),
-          target: ((that.pipeline.getTagFlowFilterStatus()) ? v[0].targetTag : v[0].targetNode),
-          value: d3.sum(v, function (d: any) {
-            return d.valueNode;
-          }),
-          time: v[0].timeNode
-        };
-      })
-      .entries(json)
-      .map((o) => o.values) // Remove key/values
-      .filter((e) => {
-        return e.value > 0;
-      }); // Remove entries whos sum is smaller than 0
-
-    if (that.pipeline.getTagFlowFilterStatus()) {
-      flatNest = flatNest.filter(function (d) {
-        return (d.source !== '' && d.source !== undefined) && (d.target !== '' && d.target !== undefined);
-      });
-    }
 
     // Create reduced graph with only number of nodes shown
     // rationale: typescript complains less about dy etc. if we first define it like this
@@ -456,7 +465,7 @@ class SankeyDiagram implements MAppViews {
     // console.log('changed flows to show: ', that.nodesToShow);
 
     //============ CHECK IF SHOULD DRAW ============
-    if (json.length === 0 || flatNest.length === 0) {         // ERROR: Too strong filtered
+    if (nestedAndSortedData.length === 0) {         // ERROR: Too strong filtered
       that.drawReally = false;
       this.showErrorDialog(ERROR_TOOMANYFILTER, true);
     } else if (that.pipeline.getTagFlowFilterStatus()) {       // ERROR: No Tags found
@@ -475,7 +484,7 @@ class SankeyDiagram implements MAppViews {
     //============ REALLY DRAW ===============
     if (that.drawReally) {
       const flowSorter = FlowSorter.getInstance();
-      graph = flowSorter.topFlows(flatNest, valuePostFix);
+      graph = flowSorter.topFlows(nestedAndSortedData, valuePostFix);
 
       textTransition(d3.select('#infoNodesLeft'), flowSorter.getMessage(0), 350);
       textTransition(d3.select('#loadInfo'), flowSorter.getMessage(1), 350);
@@ -532,12 +541,12 @@ class SankeyDiagram implements MAppViews {
       link.on('click', function (d) {
         const coordinates = d3.mouse(svg.node());
         console.log(coordinates);
-        events.fire(AppConstants.EVENT_CLICKED_PATH, d, origJson, coordinates);
+        events.fire(AppConstants.EVENT_CLICKED_PATH, d, originalData, coordinates);
       });
 
-      link.on('show', function(d) {
+      link.on('show', function (d) {
         const coordinates = [200, 100];
-        events.fire(AppConstants.EVENT_SHOW_DETAIL_SANKEY, d, origJson, coordinates);
+        events.fire(AppConstants.EVENT_SHOW_DETAIL_SANKEY, d, originalData, coordinates);
       });
 
       // Add in the nodes
@@ -693,7 +702,7 @@ class SankeyDiagram implements MAppViews {
             return '\uf02c';
           })
           .attr('class', function (d) {
-            if (that.getNumOfTagsForMediaNode(json, d.name) === 'No Tags') {
+            if (that.getNumOfTagsForMediaNode(filteredData, d.name) === 'No Tags') {
               return 'manageMediaTag noFill';
             } else {
               return 'manageMediaTag fullFill';
@@ -705,7 +714,7 @@ class SankeyDiagram implements MAppViews {
           .attr('x', -manageEntityOffset + (sankey.nodeWidth() - 20))
           .attr('text-anchor', 'end')
           .attr('class', function (d) {
-            if (that.getNumOfTagsForEntityNode(json, d.name) === 'No Tags') {
+            if (that.getNumOfTagsForEntityNode(filteredData, d.name) === 'No Tags') {
               return 'manageEntityTag noFill';
             } else {
               return 'manageEntityTag fullFill';
@@ -716,12 +725,12 @@ class SankeyDiagram implements MAppViews {
         const mediaTagManager = this.$node.selectAll('.manageMediaTag');
 
         entityTagManager.on('click', (d) => {
-          const tags: d3.Set = that.entityTagFilter.getTagsByName(json, d.name);
+          const tags: d3.Set = that.entityTagFilter.getTagsByName(filteredData, d.name);
           const dialog = new ManageTagDialog(d, tags, that.entityTagFilter);
         });
 
         mediaTagManager.on('click', (d) => {
-          const tags: d3.Set = that.mediaTagFilter.getTagsByName(json, d.name);
+          const tags: d3.Set = that.mediaTagFilter.getTagsByName(filteredData, d.name);
           const dialog = new ManageTagDialog(d, tags, that.mediaTagFilter);
         });
       }
@@ -735,7 +744,7 @@ class SankeyDiagram implements MAppViews {
 
       // On Hover titles for Sankey Diagram Text - after Text Elipsis
     } else {
-            const svgPlain = d3.select('#sankeyDiagram svg');
+      const svgPlain = d3.select('#sankeyDiagram svg');
       const g = svgPlain.append('g');
 
       g.append('rect')
@@ -753,6 +762,88 @@ class SankeyDiagram implements MAppViews {
         .style('font-varaint', 'small-caps')
         .text('Nothing to show!');
     }
+  }
+
+  private drawEncoding(data: any, hidden: Boolean = true) {
+    $('.encodingView').remove();
+
+    // data = data.filter((x) => x.valueNode !== '0' && x.valueNode !== null).sort((a, b) => b.valueNode - a.valueNode);
+    console.log(data.slice(0, 3));
+
+    const parent = document.createElement('div');
+    parent.className = 'encodingView';
+    if (hidden) {
+      parent.className = parent.className + ' scrollytelling-disabled';
+    }
+
+    const table = d3.select(parent).append('table');
+    table.attr('style', 'wdith: 100%');
+
+    const tbody = table.append('tbody');
+
+    table
+      .append('thead')
+      .append('tr')
+      .selectAll('th')
+      .data(['Origin', 'Destination', 'Value'])
+      .enter()
+      .append('th')
+      .text((header) => header);
+
+    const rows = tbody
+      .selectAll('tr')
+      .data(data.slice(0, 3))
+      .enter()
+      .append('tr')
+      .selectAll('td')
+      .data((row, id) => [row.source, row.target, row.value])
+      .enter()
+      .append('td')
+      .text((cell) => cell);
+
+
+    const path = <SVGPathElement>document.querySelector('.link');
+    const pathHeight = +path.getAttribute('stroke-width');
+    const point = path.getPointAtLength(path.getTotalLength() * 0.5);
+    const screenPoint = point.matrixTransform(path.getScreenCTM());
+    const width = '(240px + 10%)';
+    const height = '18em';
+
+    const indicatorWidth = 12;
+
+    const svg = d3.select(parent)
+      .attr('style',
+        `position: fixed;
+        width: calc(${width});
+        height: ${height};
+        left: calc(${screenPoint.x}px - ${width} / 2 );
+        top: calc(${screenPoint.y}px - ${height} + ${pathHeight}px);`)
+      .append('svg')
+      .attr('style',
+        `position: fixed;
+        width: ${indicatorWidth}px;
+        height: ${pathHeight}px;
+        left: calc(${screenPoint.x}px - ${indicatorWidth}px / 2);
+        top: calc(${screenPoint.y}px - ${pathHeight}px / 2);
+        `);
+
+    const arrowUp = `M 0 ${indicatorWidth / 2} L ${indicatorWidth / 2} 0 L ${indicatorWidth} ${indicatorWidth / 2} `;
+    const shaft = `M ${indicatorWidth / 2} 0 V ${pathHeight} `;
+    const arrowDown = `M 0 ${pathHeight - indicatorWidth / 2} L ${indicatorWidth / 2} ${pathHeight} L ${indicatorWidth} ${pathHeight - indicatorWidth / 2}`;
+
+    svg.append('path')
+      .attr('d', arrowUp + shaft + arrowDown)
+      .attr('stroke-width', 1)
+      .attr('stroke', '#000');
+
+    svg.append('text')
+      .attr('x', indicatorWidth)
+      .attr('y', pathHeight / 2 + 6)
+      .text('Value');
+
+
+    document.querySelector('.dataVizView').appendChild(parent);
+    console.log('drawing encoding: ', parent);
   }
 
   /**

@@ -37,7 +37,7 @@ Sankey diagram part.
 }
 
 .leftText {
-  cursor: url( '#{$imagesDirectory}/searchIcon.svg' ) 30 1, pointer;
+  cursor: url('#{$imagesDirectory}/searchIcon.svg') 30 1, pointer;
 }
 
 .sankey_vis {
@@ -55,7 +55,7 @@ Sankey diagram part.
 }
 
 .rightText {
-  cursor: url( '#{$imagesDirectory}/searchIcon.svg' ) 1 30, pointer;
+  cursor: url('#{$imagesDirectory}/searchIcon.svg') 1 30, pointer;
 }
 
 .axis text {
@@ -98,7 +98,7 @@ div.tooltip2 {
 }
 
 .caption {
-  font:12px sans-serif;
+  font: 12px sans-serif;
 }
 
 .bar {
@@ -113,11 +113,11 @@ div.tooltip2 {
   margin-left: 25%;
   width: 50%;
   text-align: center;
- }
+}
 
 #loadMoreBtn, #loadLessBtn {
   width: 98%;
-  height:100%;
+  height: 100%;
   //background: #49B17C;
   /*color: #49B17C;
   border: 2px solid #49B17C;
@@ -230,9 +230,9 @@ node text {
 }
 
 .right_bar_heading > p {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .controlBox {
@@ -316,18 +316,20 @@ Section for the input fields of the sliders.
 #clearMedia, #clearEntity {
   background: #f0f0f0;
 }
+
 .specialIcon {
   color: #808080;
   font-size: 1.3em;
 }
 
 .sliderInput {
-    font-size: 11px;
-    width: 64px;
-    text-align: center;
+  font-size: 11px;
+  width: 64px;
+  text-align: center;
 }
+
 .sliderInput + .sliderInput {
-    float: right;
+  float: right;
 }
 
 #collapseContentEntity {
@@ -361,21 +363,41 @@ Section for the input fields of the sliders.
 }
 
 @keyframes flash {
-    0% { border-color: transparent; }
-    50% { border-color: $valid-color; border-radius: 4px; box-shadow: 0 0 10px $valid-color; }
-    100% { border-color: transparent; }
+  0% {
+    border-color: transparent;
+  }
+  50% {
+    border-color: $valid-color;
+    border-radius: 4px;
+    box-shadow: 0 0 10px $valid-color;
+  }
+  100% {
+    border-color: transparent;
+  }
 }
 
 @-webkit-keyframes flash {
-    0% { border-color: transparent; }
-    50% { border-color: $valid-color; }
-    100% { border-color: transparent; }
+  0% {
+    border-color: transparent;
+  }
+  50% {
+    border-color: $valid-color;
+  }
+  100% {
+    border-color: transparent;
+  }
 }
 
 @-moz-keyframes flash {
-    0% { border-color: transparent; }
-    50% { border-color: $valid-color; }
-    100% { border-color: transparent; }
+  0% {
+    border-color: transparent;
+  }
+  50% {
+    border-color: $valid-color;
+  }
+  100% {
+    border-color: transparent;
+  }
 }
 
 .col-sm-10 {
@@ -401,4 +423,27 @@ Section for the input fields of the sliders.
   stroke-width: 3;
   stroke: $valid-color;
   fill: none;
+}
+
+.encodingView {
+  pointer-events: none;
+  overflow: visible;
+
+  svg {
+    padding: 0;
+    overflow: visible;
+  }
+
+  table {
+    width: 100%;
+    margin: auto;
+  }
+
+  th, td {
+    padding: 4px 16px;
+  }
+
+  th:last-child, td:last-child {
+    text-align: right;
+  }
 }

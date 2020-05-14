@@ -127,7 +127,7 @@ export default class FilterPipeline
         data = this._mediaSearchFilter.meetCriteria(data);
     }
 
-    for (let filter of this.filters)
+    for (const filter of this.filters)
     {
         data = filter.meetCriteria(data);
     }
@@ -140,7 +140,7 @@ export default class FilterPipeline
    */
   public performAttributeFilters(data: any): any
   {
-    for (let filter of this._attributeFilters)
+    for (const filter of this._attributeFilters)
     {
       data = filter.meetCriteria(data);
     }
@@ -156,7 +156,7 @@ export default class FilterPipeline
     this._entitySearchFilter.printData();
     this._mediaSearchFilter.printData();
     this._tagFlowFilter.printData();
-    for (let filter of this.filters)
+    for (const filter of this.filters)
     {
       filter.printData();
     }
