@@ -777,7 +777,6 @@ class SankeyDiagram implements MAppViews {
     }
 
     const table = d3.select(parent).append('table');
-    table.attr('style', 'wdith: 100%');
 
     const tbody = table.append('tbody');
 
@@ -836,14 +835,80 @@ class SankeyDiagram implements MAppViews {
       .attr('stroke-width', 1)
       .attr('stroke', '#000');
 
-    svg.append('text')
+    const valueText = svg.append('text')
       .attr('x', indicatorWidth)
       .attr('y', pathHeight / 2 + 6)
       .text('Value');
 
-
     document.querySelector('.dataVizView').appendChild(parent);
-    console.log('drawing encoding: ', parent);
+
+    const originHeader = document.querySelector('.encodingView thead th:nth-child(1)');
+    const destinationHeader = document.querySelector('.encodingView thead th:nth-child(2)');
+    const valueHeader = document.querySelector('.encodingView thead th:nth-child(3)');
+
+    const tableNode = document.querySelector('.encodingView table');
+    const sourceNode = document.querySelector('.sankey_vis .source');
+    const targetNode = document.querySelector('.sankey_vis .target');
+
+    const tableHeight = tableNode.getBoundingClientRect().height;
+    console.log(tableNode.getBoundingClientRect());
+
+
+    const arrowSvg = d3.select(parent).append('svg');
+    const svgElem = arrowSvg.node() as any;
+    const ctm = svgElem.getScreenCTM().inverse();
+
+    const arrowStart = (header: Element, isLeft: boolean = true) => {
+      const boundingRect = header.getBoundingClientRect();
+      let svgPoint = svgElem.createSVGPoint();
+      svgPoint.x = isLeft ? boundingRect.left + indicatorWidth : boundingRect.right - indicatorWidth;
+      svgPoint.y = boundingRect.top + boundingRect.height / 2.0;
+      svgPoint = svgPoint.matrixTransform(ctm);
+
+      return `M ${svgPoint.x} ${svgPoint.y} h ${isLeft ? -indicatorWidth : indicatorWidth} v ${tableHeight - boundingRect.height / 2.0} `;
+    };
+
+    const arrowHead = (point: SVGPoint) => {
+      return `l ${-indicatorWidth/2.0} ${-indicatorWidth/2.0} M ${point.x} ${point.y} l  ${indicatorWidth/2.0} ${-indicatorWidth/2.0}`;
+    };
+
+    const arrowEnd = (target: Element) => {
+      const boundingRect = target.getBoundingClientRect();
+      let svgPoint = svgElem.createSVGPoint();
+      svgPoint.x = boundingRect.left + boundingRect.width / 2.0;
+      svgPoint.y = boundingRect.top;
+      svgPoint = svgPoint.matrixTransform(ctm);
+
+      return `H ${svgPoint.x} V ${svgPoint.y} ` + arrowHead(svgPoint);
+    };
+
+    arrowSvg
+      .append('path')
+      .attr('d',  arrowStart(originHeader) + arrowEnd(sourceNode))
+      .attr('fill', 'none')
+      .attr('stroke-width', 1)
+      .attr('stroke', '#000');
+
+    arrowSvg
+      .append('path')
+      .attr('d',  arrowStart(destinationHeader) + arrowEnd(targetNode))
+      .attr('fill', 'none')
+      .attr('stroke-width', 1)
+      .attr('stroke', '#000');
+
+    const boundingRect = (valueText.node() as Element).getBoundingClientRect();
+    let svgPoint = svgElem.createSVGPoint();
+    svgPoint.x = boundingRect.right + indicatorWidth;
+    svgPoint.y = boundingRect.top + boundingRect.height / 2.0;
+    svgPoint = svgPoint.matrixTransform(ctm);
+    const valueArrowEnd = `V ${svgPoint.y} H ${svgPoint.x} l ${indicatorWidth/2.0} ${indicatorWidth/2.0} M ${svgPoint.x} ${svgPoint.y} l  ${indicatorWidth/2.0} ${-indicatorWidth/2.0}`;
+
+    arrowSvg
+      .append('path')
+      .attr('d',  arrowStart(valueHeader, false) + valueArrowEnd)
+      .attr('fill', 'none')
+      .attr('stroke-width', 1)
+      .attr('stroke', '#000');
   }
 
   /**
