@@ -773,7 +773,7 @@ class SankeyDiagram implements MAppViews {
     const parent = document.createElement('div');
     parent.className = 'encodingView';
     if (hidden) {
-      parent.className = parent.className + ' scrollytelling-disabled';
+      parent.className = parent.className + ' encoding-disabled';
     }
 
     const table = d3.select(parent).append('table');
@@ -816,7 +816,7 @@ class SankeyDiagram implements MAppViews {
         width: calc(${width});
         height: ${height};
         left: calc(${screenPoint.x}px - ${width} / 2 );
-        top: calc(${screenPoint.y}px - ${height} + ${pathHeight}px);`)
+        top: calc(214px);`)
       .append('svg')
       .attr('style',
         `position: fixed;

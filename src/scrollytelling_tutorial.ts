@@ -204,9 +204,9 @@ class ScrollytellingTutorial implements MAppViews {
     //TODO: Auto-hide
     if (waypoint.id === ScrollytellingConstants.VIS_ENCODING) {
       events.fire(AppConstants.EVENT_REQUEST_CURRENT_DATA);
-      $('.encodingView').removeClass('scrollytelling-disabled');
+      $('.encodingView').removeClass('encoding-disabled');
     } else {
-      $('.encodingView').addClass('scrollytelling-disabled');
+      $('.encodingView').addClass('encoding-disabled');
     }
   }
 
