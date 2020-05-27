@@ -196,8 +196,6 @@ class ScrollytellingTutorial implements MAppViews {
   }
 
   private handleSpecialCasesFor(waypoint: Element) {
-    console.log('current waypoint: ', waypoint);
-
     if (waypoint.id === ScrollytellingConstants.VIS_MAIN) {
       $('#sankeyDiagram').addClass('scrollytelling-highlighted');
     }

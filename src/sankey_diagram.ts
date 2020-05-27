@@ -768,7 +768,6 @@ class SankeyDiagram implements MAppViews {
     $('.encodingView').remove();
 
     // data = data.filter((x) => x.valueNode !== '0' && x.valueNode !== null).sort((a, b) => b.valueNode - a.valueNode);
-    console.log(data.slice(0, 3));
 
     const parent = document.createElement('div');
     parent.className = 'encodingView';
@@ -846,13 +845,16 @@ class SankeyDiagram implements MAppViews {
     const destinationHeader = document.querySelector('.encodingView thead th:nth-child(2)');
     const valueHeader = document.querySelector('.encodingView thead th:nth-child(3)');
 
+    const sourceNodes = document.querySelectorAll('.sankey_vis .source');
+    const targetNodes = document.querySelectorAll('.sankey_vis .target');
+
     const tableNode = document.querySelector('.encodingView table');
-    const sourceNode = document.querySelector('.sankey_vis .source');
-    const targetNode = document.querySelector('.sankey_vis .target');
+    const sourceNode = sourceNodes[0];
+    const endSourceNode = sourceNodes[sourceNodes.length - 1];
+    const targetNode = targetNodes[0];
+    const endTargetNode = targetNodes[targetNodes.length - 1];
 
     const tableHeight = tableNode.getBoundingClientRect().height;
-    console.log(tableNode.getBoundingClientRect());
-
 
     const arrowSvg = d3.select(parent).append('svg');
     const svgElem = arrowSvg.node() as any;
@@ -909,6 +911,24 @@ class SankeyDiagram implements MAppViews {
       .attr('fill', 'none')
       .attr('stroke-width', 1)
       .attr('stroke', '#000');
+
+
+
+    let rect = sourceNode.getBoundingClientRect();
+    let bgHeight = endSourceNode.getBoundingClientRect().top - rect.top + endSourceNode.getBoundingClientRect().height;
+
+    d3.select(parent)
+      .append('div')
+      .attr('class', 'encoding_background source')
+      .attr('style', `top: ${rect.top}px; left: ${rect.left}px; width: ${rect.width}px; height: ${bgHeight}px;`);
+
+    rect = targetNode.getBoundingClientRect();
+    bgHeight = endTargetNode.getBoundingClientRect().top - rect.top + endTargetNode.getBoundingClientRect().height;
+
+    d3.select(parent)
+      .append('div')
+      .attr('class', 'encoding_background target')
+      .attr('style', `top: ${rect.top}px; left: ${rect.left}px; width: ${rect.width}px; height: ${bgHeight}px;`);
   }
 
   /**

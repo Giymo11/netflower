@@ -425,6 +425,34 @@ Section for the input fields of the sliders.
   fill: none;
 }
 
+// from https://stackoverflow.com/questions/12228548/finding-equivalent-color-with-opacity
+@function alphaize($desired-color, $background-color) {
+
+  $r1: red($background-color);
+  $g1: green($background-color);
+  $b1: blue($background-color);
+
+  $r2: red($desired-color);
+  $g2: green($desired-color);
+  $b2: blue($desired-color);
+
+  $alpha: 0;
+  $r: -1;
+  $g: -1;
+  $b: -1;
+
+  @while $alpha < 1 and ($r < 0 or $g < 0 or $b < 0
+                           or $r > 255 or $g > 255 or $b > 255) {
+    $alpha: $alpha + 1/256;
+    $inv: 1 / $alpha;
+    $r: $r2 * $inv + $r1 * (1 - $inv);
+    $g: $g2 * $inv + $g1 * (1 - $inv);
+    $b: $b2 * $inv + $b1 * (1 - $inv);
+  }
+
+  @return rgba($r, $g, $b, $alpha);
+}
+
 .encodingView {
   pointer-events: none;
   overflow: visible;
@@ -443,7 +471,27 @@ Section for the input fields of the sliders.
     padding: 4px 16px;
   }
 
+  td:nth-child(1), th:nth-child(1) {
+    background: #f1fbe7;
+  }
+
+  td:nth-child(2), th:nth-child(2) {
+    background: #cdddec;
+  }
+
   th:last-child, td:last-child {
     text-align: right;
+  }
+
+  .encoding_background {
+    position: fixed;
+  }
+
+  .encoding_background.source {
+    background: alphaize(#f1fbe7, #FFF);
+  }
+
+  .encoding_background.target {
+    background: alphaize(#cdddec, #FFF);
   }
 }
