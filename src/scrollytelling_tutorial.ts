@@ -31,6 +31,9 @@ export class ScrollytellingConstants {
   static TAG_ADD = 'scrollytelling_waypoint-tag-add';
   static TAG_FILTER = 'scrollytelling_waypoint-tag-filter';
   static TAG_FLOW = 'scrollytelling_waypoint-tag-flow';
+  static VIS_SIDES = 'scrollytelling_waypoint-vis-sides';
+  static VIS_HOVER = 'scrollytelling_waypoint-vis-hover';
+  static TAGS = 'scrollytelling_waypoint-tags';
 }
 
 class ScrollytellingTutorial implements MAppViews {
@@ -43,33 +46,39 @@ class ScrollytellingTutorial implements MAppViews {
     '',
     '',
     '.left_bars, .right_bars',
-    '.load_more, .tooltip2',
+    '.barchart',
     '',
+    '.load_more',
+    '.tooltip2',
     '',
     '.sankey_features-filter-time',
     '.sankey_features-filter-sort',
     '.sankey_features-filter-export',
     '.sankey_diagram-slider, .middle_bars',
     '.sankey_diagram-search',
-    '.manageEntityTag, .manageMediaTag',
-    '.sankey_diagram-tagfilter',
-    '.sankey_features-tag-flow',
+    //'.manageEntityTag, .manageMediaTag',
+    //'.sankey_diagram-tagfilter',
+    //'.sankey_features-tag-flow',
+    '.manageEntityTag, .manageMediaTag, .sankey_diagram-tagfilter, .sankey_features-tag-flow',
   ];
   private breakpoints = [
     ScrollytellingConstants.ABOUT,
     ScrollytellingConstants.VIS_MAIN,
+    ScrollytellingConstants.VIS_SIDES,
     ScrollytellingConstants.VIS_CHART,
-    ScrollytellingConstants.VIS_LOAD,
-    ScrollytellingConstants.VIS_DETAIL,
     ScrollytellingConstants.VIS_ENCODING,
+    ScrollytellingConstants.VIS_LOAD,
+    ScrollytellingConstants.VIS_HOVER,
+    ScrollytellingConstants.VIS_DETAIL,
     ScrollytellingConstants.FILTER_TIME,
     ScrollytellingConstants.FILTER_SORT,
     ScrollytellingConstants.FILTER_EXPORT,
     ScrollytellingConstants.FILTER_LIMIT,
     ScrollytellingConstants.FILTER_SEARCH,
-    ScrollytellingConstants.TAG_ADD,
-    ScrollytellingConstants.TAG_FILTER,
-    ScrollytellingConstants.TAG_FLOW,
+    //ScrollytellingConstants.TAG_ADD,
+    //ScrollytellingConstants.TAG_FILTER,
+    //ScrollytellingConstants.TAG_FLOW,
+    ScrollytellingConstants.TAGS,
   ];
 
   private exitedTutorial: Boolean = false;
@@ -187,17 +196,19 @@ class ScrollytellingTutorial implements MAppViews {
   }
 
   private handleSpecialCasesFor(waypoint: Element) {
+    console.log('current waypoint: ', waypoint);
+
     if (waypoint.id === ScrollytellingConstants.VIS_MAIN) {
       $('#sankeyDiagram').addClass('scrollytelling-highlighted');
     }
-    if (waypoint.id === ScrollytellingConstants.VIS_LOAD && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
+    if (waypoint.id === ScrollytellingConstants.VIS_HOVER && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
       events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
     }
-    if (waypoint.id === ScrollytellingConstants.VIS_DETAIL && this.currentOverlap === ScrollytellingConstants.VIS_LOAD) {
+    if (waypoint.id === ScrollytellingConstants.VIS_DETAIL && this.currentOverlap === ScrollytellingConstants.VIS_HOVER) {
       document.querySelector('#sankeyDiagram path.link')
         .dispatchEvent(new MouseEvent('show', {clientX: 200, clientY: 200}));
     }
-    if (waypoint.id === ScrollytellingConstants.VIS_ENCODING && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
+    if (waypoint.id === ScrollytellingConstants.FILTER_TIME && this.currentOverlap === ScrollytellingConstants.VIS_DETAIL) {
       events.fire(AppConstants.EVENT_CLOSE_DETAIL_SANKEY, {});
     }
 
@@ -253,202 +264,81 @@ class ScrollytellingTutorial implements MAppViews {
             <path fill-rule="evenodd" d="M6.776 1.553a.5.5 0 01.671.223l3 6a.5.5 0 010 .448l-3 6a.5.5 0 11-.894-.448L9.44 8 6.553 2.224a.5.5 0 01.223-.671z" clip-rule="evenodd"/>
         </svg>
       </div>
-      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.ABOUT}">
-        <h3>
-          About
-        </h3>
 
+      <div class="scrollytelling_spacer"></div>
+
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.ABOUT}">
+        <h3>About</h3>
         <p>
-          Netflower is a tool for visual exploration of flows in dynamic
-          networks, such as money flows between organizations or migration flows
-          between countries. It is a highly interactive web application
-          particularly developed for investigative data journalism.
+          Netflower is developed to explore <b>large bipartite network data</b>.
+          The tool supports you <b>finding interesting aspects</b> in the data.
+          You cannot directly create visualizations out of it, but you can <b>export the data based on your exploration state</b>.
         </p>
         <p>
-          Netflower is developed to explore large bipartite network data. The
-          tool supports you finding interesting aspects in the data. You cannot
-          directly create visualizations out of it, but you can export the data
-          based on your exploration state.
+          Netflower is a tool for <b>visual exploration</b> of flows in <b>dynamic networks</b>, such as money flows between organizations or migration flows between countries.
+          It is a highly interactive web application particularly developed for <b>investigative data journalism</b>.
         </p>
       </div>
+
 
       <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_MAIN}">
-        <h3>
-          Read the Visualization
-        </h3>
-        <ol start="1">
-          <li>
-            The main visualization is a sankey diagram. You read the sankey
-            diagram from left to right. The left side shows the
-            origin and on the right are the destinations.
-          </li>
-        </ol>
+        <h3>Read the Visualization</h3>
+        <p>The main visualization is a <b>Sankey diagram</b>.</p>
+      </div>
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_SIDES}">
+        <p>You read the Sankey diagram from <b>left to right</b>. The <b>left side</b> shows the <b>origin</b> and on the <b>right</b> are the <b>destinations</b>.</p>
+      </div>
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_CHART}">
+        <p>The small <b>bar charts</b> left and right show the <b>amount over time</b>, from the point of view of the source and the target.</p>
+      </div>
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_ENCODING}">
+        <p>The picture shows the <b>visual encoding</b>. The lines from the table to the Sankey diagram show the encoding from the data to the visual element - in this case a Sankey diagram.</p>
       </div>
 
-      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_CHART}">
-        <ol start="2">
-          <li>
-            The small bar charts left and right show the amount over time, from the
-            point of view of the source and the target.
-          </li>
-        </ol>
-      </div>
 
       <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_LOAD}">
-        <p>
-          On the bottom of the site, you find two buttons <b>'Show Less'</b> and
-          <b>'Show More'</b>. Here you can load more nodes or show less nodes.
-          When you hover over the nodes (rectangles) in the visualization you
-          get the information of how many asylum applications were made from the
-          selected country (node). You also see that maybe not all destination
-          and origin countries are visible by the hatching rectangle. Here you
-          can use the buttons below to load more origin and destination
-          countries.
-        </p>
+        <h3>Interact with the visualization</h3>
+        <p>You can use the buttons 'Show Less' and 'Show More' to load more or less nodes.</p>
       </div>
-
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_HOVER}">
+        <p>When you hover over the nodes (rectangles) in the visualization you get the information of the number of outgoing data.</p>
+        <p>You also see that maybe not all data is visible by the hatching rectangle.</p>
+      </div>
       <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_DETAIL}">
-        <p>
-          <b>Detailed view</b>: By clicking on one connection line in the sankey
-          diagram, you get a detail view showing the amount between the two nodes (origin and destination).
-        </p>
+        <p>By clicking on one connection line in the Sankey diagram, you get a detail view showing the amount between the two nodes (origin and destination).</p>
       </div>
 
-      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.VIS_ENCODING}">
-        <p>
-          The screen picture shows the <b>visual encoding</b>. The lines from the table to the sankey
-          diagram show the encoding from the data to the visual element - in
-          this case a sankey diagram.
-        </p>
-      </div>
 
       <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.FILTER_TIME}">
-        <h3 id="filtering">
-          Filtering, Sorting, Ordering
-        </h3>
-        <p>
-          You can filter, sort and order the data, which influences the
-          visualization view.
-        </p>
-        <ol start="1">
-          <li>
-            You can filter the data in time and connection.
-          </li>
-        </ol>
+        <h3 id="filtering">Filtering, Sorting, Ordering</h3>
+        <p>You can filter the data in <b>time</b> and <b>connection</b>.</p>
       </div>
-
       <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.FILTER_SORT}">
-        <ol start="2">
-          <li>
-            You can sort the data by source, target and flow and order it,
-            ascending and descending.
-          </li>
-        </ol>
+        <p>You can <b>sort</b> the <b>data</b> by <b>source</b>, <b>target</b> and <b>flow</b> and order it, <b>ascending</b> and <b>descending</b>.</p>
       </div>
-
       <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.FILTER_EXPORT}">
-        <ol start="3">
-          <li>
-            Exporting the data from the current view. You get a .csv file with
-            the data of the current visualization, including all sorting and
-            filtering operations.
-          </li>
-        </ol>
+        <p><b>Exporting</b> the data from the current view. You get a .csv file with the data of the current visualization, including all sorting and filtering operations.</p>
       </div>
-
       <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.FILTER_LIMIT}">
-        <ol start="4">
-          <li>
-            You can set limits by using the sliders on both sides.
-          </li>
-        </ol>
+        <p>You can set limits by using the <b>sliders</b> on both sides.</p>
       </div>
-
       <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.FILTER_SEARCH}">
-        <ol start="5">
-          <li>
-            Search for a node in the origin and also in the
-            destination using the search box.
-          </li>
-        </ol>
+        <p><b>Search</b> for a node in the origin and also in the destination using the search box.</p>
       </div>
 
-      <div class="" id="${ScrollytellingConstants.TAG_DATA}">
-        <h3 id="tags">
-          Use Tags
-        </h3>
-        <p>
-          You can use tags to organize and group nodes on the source or target
-          side. You can add tags in the .csv file you will upload, or you can
-          add tags directly in the visualization view.
-        </p>
-        <ol start="1">
-          <li>
-            Add tags in the .csv in the 'SourceTag' or 'TargetTag' row. By using
-            the pipe sign '|' you can add more than one tag to a particular
-            node.
-          </li>
-        </ol>
+      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.TAGS}">
+        <p>There is additional functionality (the ability to add tags, a notebook) which is not discussed here.</p>
       </div>
 
-      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.TAG_ADD}">
-        <ol start="2">
-          <li>
-            You can add tags by clicking the tags-sign next to the nodes in the
-            sankey diagram.
-          </li>
-        </ol>
-      </div>
 
-      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.TAG_FILTER}">
-        <ol start="3">
-          <li>
-            You can filter by tags by clicking the small button below the search
-            either on the left and right side.
-          </li>
-        </ol>
-      </div>
-
-      <div class="scrollytelling_waypoint" id="${ScrollytellingConstants.TAG_FLOW}">
-        <ol start="4">
-          <li>
-            To see the flows between given tags you can switch the view in the
-            header   <!--, as it is described in the video.-->
-          </li>
-        </ol>
-      </div>
 
       <div>
-        <ol start="5">
-          <li>
-            When you export the data, the tags, you have assigned in the
-            visualization view, are also exported.
-          </li>
-        </ol>
+        <button id="btnExitTutorial" class="btn btn-default btn_design scrollytelling_exit-button">Toggle Tutorial</button>
       </div>
 
-      <div>
-        <h3 id="notebook">
-          Notebook
-        </h3>
-        <p>
-          You can use a notebook, which opens when clicking the handler on the
-          left side of the screen. You can add some notes and also export it as
-          a .txt. file. This file can be loaded in the notebook sidebar, when
-          starting for example a new session analysing data with netflower.
-        </p>
-        <p>
-          Please notice, that if you clean your browser forcefully or shut down
-          your device, the data gets lost. However, if you refresh the page or
-          go back to it if you closed the browser normally it will still be
-          there!
-        </p>
-      </div>
       <div class="scrollytelling_spacer"></div>
-        <div>
-            <button id="btnExitTutorial" class="btn btn-default btn_design scrollytelling_exit-button">Toggle Tutorial</button>
-        </div>
-</div>`
+      <div class="scrollytelling_spacer"></div>
+    </div>`
     );
   }
 }
