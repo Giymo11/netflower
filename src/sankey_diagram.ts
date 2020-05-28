@@ -412,11 +412,16 @@ class SankeyDiagram implements MAppViews {
       });
     }
 
-    this.drawSankey(filteredData, originalData, nestedAndSortedData);
-    this.drawEncoding(nestedAndSortedData);
+    const columnLabels: any = JSON.parse(localStorage.getItem('columnLabels'));
+    console.log(columnLabels);
+    /** unit of flows (e.g., '€'). Extracted from CSV header. */
+    const unitOfFlowPostfix = (columnLabels == null) ? '' : ' ' + columnLabels.valueNode;
+
+    this.drawSankey(filteredData, originalData, nestedAndSortedData, unitOfFlowPostfix);
+    this.drawEncoding(nestedAndSortedData, unitOfFlowPostfix, columnLabels);
   }
 
-  private drawSankey(filteredData: any, originalData: any, nestedAndSortedData: any) {
+  private drawSankey(filteredData: any, originalData: any, nestedAndSortedData: any, unitOfFlowPostfix: string) {
     const that = this;
 
     const sankey = (<any>d3).sankey();
@@ -425,9 +430,7 @@ class SankeyDiagram implements MAppViews {
     const selectedTimePointsAsString = (timePoints.length > 1)
       ? TimeFormat.format(timePoints[0]) + ' \u2013 ' + TimeFormat.format(timePoints[timePoints.length - 1])
       : TimeFormat.format(timePoints[0]);
-    const columnLabels: any = JSON.parse(localStorage.getItem('columnLabels'));
-    /** unit of flows (e.g., '€'). Extracted from CSV header. */
-    const valuePostFix = (columnLabels == null) ? '' : ' ' + columnLabels.valueNode;
+
 
     const headingOffset = this.$node.select('.controlBox').node().getBoundingClientRect().height;  //10 from padding of p tag
     const footerOffset = this.$node.select('.load_more').node().getBoundingClientRect().height + 15;
@@ -484,7 +487,7 @@ class SankeyDiagram implements MAppViews {
     //============ REALLY DRAW ===============
     if (that.drawReally) {
       const flowSorter = FlowSorter.getInstance();
-      graph = flowSorter.topFlows(nestedAndSortedData, valuePostFix);
+      graph = flowSorter.topFlows(nestedAndSortedData, unitOfFlowPostfix);
 
       textTransition(d3.select('#infoNodesLeft'), flowSorter.getMessage(0), 350);
       textTransition(d3.select('#loadInfo'), flowSorter.getMessage(1), 350);
@@ -529,9 +532,9 @@ class SankeyDiagram implements MAppViews {
           let text;
           if (that.pipeline.getTagFlowFilterStatus()) {
             const re = /\|/g;
-            text = d.source.name.replace(re, ', ') + ' → ' + d.target.name.replace(re, ', ') + '\n' + dotFormat(d.value) + valuePostFix;
+            text = d.source.name.replace(re, ', ') + ' → ' + d.target.name.replace(re, ', ') + '\n' + dotFormat(d.value) + unitOfFlowPostfix;
           } else {
-            text = d.source.name + ' → ' + d.target.name + '\n' + dotFormat(d.value) + valuePostFix;
+            text = d.source.name + ' → ' + d.target.name + '\n' + dotFormat(d.value) + unitOfFlowPostfix;
           }
           Tooltip.mouseOver(d, text, 'T2');
         })
@@ -564,7 +567,7 @@ class SankeyDiagram implements MAppViews {
           return (that.pipeline.getTagFlowFilterStatus()) ? classAttr + ' tag' : classAttr;
         })
         .on('mouseenter', (d) => {
-          assembleNodeTooltip(d, valuePostFix);
+          assembleNodeTooltip(d, unitOfFlowPostfix);
         })
         .on('mouseleave', Tooltip.mouseOut)
         .attr('transform', function (d) {
@@ -764,7 +767,7 @@ class SankeyDiagram implements MAppViews {
     }
   }
 
-  private drawEncoding(data: any, hidden: Boolean = true) {
+  private drawEncoding(data: any, unitOfFlowPostfix: string, columnLabels: any, hidden: Boolean = true) {
     $('.encodingView').remove();
 
     // data = data.filter((x) => x.valueNode !== '0' && x.valueNode !== null).sort((a, b) => b.valueNode - a.valueNode);
@@ -783,7 +786,7 @@ class SankeyDiagram implements MAppViews {
       .append('thead')
       .append('tr')
       .selectAll('th')
-      .data(['Origin', 'Destination', 'Value'])
+      .data(['Source', 'Target', 'Value'])
       .enter()
       .append('th')
       .text((header) => header);
@@ -794,7 +797,7 @@ class SankeyDiagram implements MAppViews {
       .enter()
       .append('tr')
       .selectAll('td')
-      .data((row, id) => [row.source, row.target, row.value])
+      .data((row, id) => [row.source, row.target, row.value + unitOfFlowPostfix])
       .enter()
       .append('td')
       .text((cell) => cell);
