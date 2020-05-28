@@ -464,11 +464,15 @@ Section for the input fields of the sliders.
 
   table {
     width: 100%;
+    table-layout: fixed;
     margin: auto;
   }
 
   th, td {
     padding: 4px 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   td:nth-child(1), th:nth-child(1) {

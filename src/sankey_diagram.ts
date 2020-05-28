@@ -804,7 +804,7 @@ class SankeyDiagram implements MAppViews {
     const pathHeight = +path.getAttribute('stroke-width');
     const point = path.getPointAtLength(path.getTotalLength() * 0.5);
     const screenPoint = point.matrixTransform(path.getScreenCTM());
-    const width = '(240px + 10%)';
+    const width = '(280px + 15%)';
     const height = '18em';
 
     const indicatorWidth = 12;
