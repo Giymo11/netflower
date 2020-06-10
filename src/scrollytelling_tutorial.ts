@@ -268,7 +268,7 @@ class ScrollytellingTutorial implements MAppViews {
       <div id="scrollytelling-introduction" class="scrollytelling-tutorial">
         <p>
           This tutorial uses scrollytelling, meaning that new things appear when you scroll.
-          The visualisation itself will not be scrollable until you arrive at the bottom of the tutorial and switch to normal scrolling via the button "Toggle Tutorial".
+          The visualisation itself will not be scrollable until you arrive at the bottom of the tutorial and switch to normal scrolling via the button "Toggle Scrollytelling".
         </p>
       </div>
 
@@ -338,7 +338,7 @@ class ScrollytellingTutorial implements MAppViews {
 
 
       <div>
-        <button id="btnExitTutorial" class="btn btn-default btn_design scrollytelling_exit-button">Toggle Tutorial</button>
+        <button id="btnExitTutorial" class="btn btn-default btn_design scrollytelling_exit-button">Toggle Scrollytelling</button>
       </div>
 
       <div class="scrollytelling_spacer"></div>
