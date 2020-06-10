@@ -72,6 +72,7 @@ body {
   position: fixed;
   top: 40vh;
   left: calc(80% - 2.5em);
+  pointer-events: none;
 
   svg {
 
