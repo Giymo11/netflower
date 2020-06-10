@@ -14,6 +14,14 @@
   overflow: auto;
 }
 
+#scrollytelling-introduction {
+  display: none;
+}
+
+#scrollytelling-introduction.scrollytelling-tutorial {
+  display: initial;
+}
+
 .scrollytelling_tutorial.scrollytelling-disabled {
   width: 20%;
 }
